@@ -148,7 +148,59 @@ three collections and confirm each collection shows its own accent hue on the st
 
 ## Stage 2 Report
 
-_Pending._
+Built the two card components that make up the wall — `components/collection-card.tsx`
+and `components/place-card.tsx` — plus their styles in `globals.css`. Both are
+server components, fully config-driven, and both link to `/journal/<essay>`.
+
+**`CollectionCard`** — the full-bleed hero. A `.photo collection-hero` (16:9,
+gradient stand-in from `collection.hero`) carries the vignette + grain; over it: a
+top-left "Collection" eyebrow, and a bottom-left foot with the serif
+`collection.name` title and the stat line. The stat's **leading whitespace token**
+is split out (`"12"` of `"12 days · 3 countries"`) and rendered in `.stat-num mono`
+with `color: var(--accent)`; the remainder stays in body type. Hover gives a subtle
+`translateY(-4px)` lift + a soft shadow (no glow/scale, per DESIGN.md). All overlaid
+text sits at `z-index: 5`, above the `.photo` vignette/grain/scrim (z 2–4).
+
+**`PlaceCard`** — the thin stacked bar. The whole `<Link>` **is** a `.photo`
+(`min-height: 88px`) filled with `place.cls`, so it too carries grain + vignette; a
+left-weighted `.place-scrim` darkens the name side. Over it: the serif `place.name`
+with a strong text-shadow (flex `1 1 auto`), a right-aligned mono `place.meta`
+label, and a `.place-arrow` (`→`) in `var(--accent)` that fades + slides in from the
+left on hover. Takes `essay` for the link target.
+
+**Accent-by-place.** Neither card hard-codes a hue — the stat number and the arrow
+both read `var(--accent)`, which the ancestor `.acc-<hue>` wrapper (applied by the
+wall in Stage 3) remaps to the collection's trio hue. Verified on a scratch page.
+
+**Images (V4-ready).** Both accept an optional `image?: string` prop, unused today
+— with none, the `.ph-*` class stands in; when a real photo lands the `<img>`
+branch (already wired as the first child of `.photo`, `object-fit: cover`) takes
+over with every other prop unchanged, so the `next/image` swap is a one-liner.
+
+**"Collection" label.** The only literal string in these components is the
+structural eyebrow "Collection" — a UI label (like the nav's Journal/Photos/About),
+not content; `site.config` has no field for it. All actual copy comes from config.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds.
+- Rendered a scratch `/scratch-cards` page — all three collections, each hero card
+  over its place stack, each wrapped in its `.acc-<hue>` class — and inspected the
+  export:
+  - Wrappers present: `acc-mustard` (Africa), `acc-teal` (United States),
+    `acc-tomato` (Japan) — **the three hue assignments**, matching DESIGN.md.
+  - Stat numbers render in `.stat-num mono`: `12` / `9` / `14`; titles Africa /
+    United States / Japan; four `/journal/<essay>` links per collection (1 hero +
+    3 places), slugs `africa` / `united-states` / `japan`.
+  - Since `.acc-mustard/-teal/-tomato` remap `--accent` to `--c-mustard/-teal/
+    -tomato`, each collection's stat number + arrows resolve to its own hue
+    (mustard `#e9b64a` / teal `#3bb3a3` / tomato `#d1495b` in dark) — three
+    accents visible on the wall at once.
+- Scratch page deleted; clean rebuild exports only `/`, `/about`, `/photos`,
+  `/_not-found`. Verification is by reading the built markup/CSS, not a screenshot.
+
+**Three hue assignments observed:** Africa → **mustard**, United States → **teal**,
+Japan → **tomato**.
 
 ---
 

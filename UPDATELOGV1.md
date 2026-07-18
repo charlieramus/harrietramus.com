@@ -413,7 +413,53 @@ NOW.md build-state table into this report.
 
 ## Stage 6 Report
 
-_Pending._
+Tied the foundation together, proved it end to end, and wrote the project's living
+docs.
+
+**Full run + the one fix.** `npx tsc --noEmit` → clean; `npm run lint` → surfaced
+one real error in `components/lightswitch.tsx` (`react-hooks/set-state-in-effect`:
+`setMode` called synchronously inside a mount `useEffect`). Rewrote the lightswitch
+to read the `<html data-mode>` external state with **`useSyncExternalStore`**
+(`getServerSnapshot` returns the `"dark"` layout default so SSR + hydration agree,
+then React reconciles to the real DOM value) — no setState-in-effect, no hydration
+mismatch, same behaviour. Re-ran: **tsc clean, lint clean, `npm run build` static
+export green** (`/`, `/about`, `/photos` + `/_not-found`).
+
+**Literal walkthrough** (served `out/`, driven in a headless browser):
+- `/` loads dark by default (`--bg #201d16`); `h1` renders in **Fraunces**, the
+  eyebrow in **JetBrains Mono** (both confirmed via computed `font-family`).
+- Flipped the lightswitch → whole UI to warm-cream (`#f3ecdd`), persisted
+  `harriet-mode=light`; **reload kept light** (no flash). Captured both-theme
+  screenshots — each reads well (deep-ink night / warm-cream day, accent underline
+  on the active nav link, correct rocker state).
+- Clicked **Journal / Photos / About** — each stub loads, marks its own nav link
+  active, keeps the footer, and sets the right title (`Photos — Harriet`, etc.).
+- Grain/vignette are wired into the `.photo` primitive (verified present in Stage
+  3); the bare V1 stub pages carry no photo surface to render them against yet —
+  that arrives with the cards/landing in V2+. Only console noise is the inherent
+  Next-export RSC prefetch 404 (documented in Stage 5) + a benign font-preload
+  warning.
+
+**`DESIGN.md`** created — the written design system: the postcard palette (grounds
++ trio hexes for both modes), the accent-by-place mapping (Africa→mustard,
+US→teal, Japan→tomato), the type roles (Fraunces / system-sans / JetBrains Mono),
+the grain/vignette `.photo` primitive, the lightbox intent, the "photos carry the
+colour / no decorative gradients / no AI slop" rules, and the privacy rule
+(wordmark only, no surname).
+
+**`NOW.md`** created — the build-state table + a Direction section pointing at the
+prototype (design) and `charlieramus.comv2` (architecture / the `site.config.ts`
+philosophy) and the V1→V4 arc.
+
+**Verify:** build + static export green; `NOW.md` and `DESIGN.md` exist and are
+accurate. The NOW.md build-state table:
+
+| Area | State | Notes |
+| --- | --- | --- |
+| **Foundation & Config** | ✅ Functional | Next.js 16 static-export app; `site.config.ts` single-source; `theme` → `themeToCss` token system; dark/light **lightswitch** (persists, no flash, defaults dark); nav + footer chrome on every page; `/`, `/photos`, `/about` route stubs. |
+| **Landing & Journal** | ⬜ Not built | Blurred hero landing + the colour-coded collection wall. **V2.** |
+| **Essays & Lightbox** | ⬜ Not built | The photo-essay reading view + the shared fullscreen lightbox. **V3.** |
+| **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the loose Photos board, the About page, real photos everywhere, launch. **V4.** |
 
 ---
 

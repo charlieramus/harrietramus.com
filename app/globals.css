@@ -684,11 +684,26 @@ button:focus-visible {
   margin: clamp(28px, 5vh, 52px) 0;
 }
 
-/* The figure box: a .photo (grain + vignette) sized by slot ratio. Real photos
-   drop in here as next/image in V4; the .ph-* gradient stands in for now. */
+/* The figure box: a .photo (grain + vignette) sized by slot ratio, rendered as a
+   real <button> (mdx-components' Shot) that opens the shared lightbox. Reset the
+   button chrome, fill the figure, and signal it's zoomable. Real photos drop in
+   here as next/image in V4; the .ph-* gradient stands in for now. */
 .essay-shot {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
   border-radius: 4px;
-  cursor: default; /* Stage 4 makes these zoom-in + clickable */
+  cursor: zoom-in;
+  color: inherit;
+  transition:
+    transform 0.4s var(--ease),
+    box-shadow 0.4s var(--ease);
+}
+/* Subtle editorial lift on hover — no glow, matches the collection card. */
+.essay-shot:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
 }
 .full-shot {
   aspect-ratio: 16 / 10;

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import type { ComponentType } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { collections, essays, wordmark } from "@/site.config";
+import { collections, essays, wordmark, type Essay } from "@/site.config";
+import type { LightboxItem } from "@/components/lightbox";
+import { EssayLightbox } from "@/components/essay-lightbox";
 import Africa from "@/content/essays/africa.mdx";
 import UnitedStates from "@/content/essays/united-states.mdx";
 import Japan from "@/content/essays/japan.mdx";
@@ -16,6 +18,27 @@ const essayBodies: Record<string, ComponentType> = {
   "united-states": UnitedStates,
   japan: Japan,
 };
+
+// The essay's lightbox item set, ordered [full, pairA, pairB, end] — the same
+// order mdx-components.tsx maps each figure's slot to (slotIndex), so clicking a
+// figure opens the lightbox at the matching image and ← / → step through this
+// essay's figures only. `cls` is the .ph-* stand-in (V4 sets `src` for
+// next/image); the ratios frame each shot in the viewer without cropping.
+function essayItems(essay: Essay): LightboxItem[] {
+  const item = (f: Essay["full"], ratio: number): LightboxItem => ({
+    cls: f.cls,
+    alt: f.cap,
+    caption: f.cap,
+    code: f.code,
+    ratio,
+  });
+  return [
+    item(essay.full, 16 / 10),
+    item(essay.pairA, 4 / 5),
+    item(essay.pairB, 4 / 5),
+    item(essay.end, 16 / 10),
+  ];
+}
 
 // /journal/[collection] — the photo-essay reading view (V3). The slug is the
 // collection's `essay` key. This replaces the V2 stub with the real template:
@@ -76,9 +99,13 @@ export default async function EssayPage({
 
       {/* Reading column. The prose + figures come from the collection's MDX
           body (content/essays/*.mdx) via the reading-column components in
-          mdx-components.tsx; the end rule + signature stay structural here. */}
+          mdx-components.tsx. EssayLightbox owns the open index and renders the
+          shared <Lightbox> over this essay's figure set; the end rule +
+          signature stay structural here. */}
       <article className="reading">
-        {Body ? <Body /> : null}
+        <EssayLightbox items={essayItems(essay)}>
+          {Body ? <Body /> : null}
+        </EssayLightbox>
         <hr className="end-rule" />
         <p className="essay-sign">{`— ${wordmark}`}</p>
       </article>

@@ -291,7 +291,55 @@ Report the item counts per essay.
 
 ## Stage 4 Report
 
-_Pending._
+Every essay photograph now opens the shared lightbox at its own image, and
+← / → step through that essay's figures only.
+
+**The client wrapper (Stage 4 point 2).** New `components/essay-lightbox.tsx`
+(`"use client"`) exports:
+- **`EssayLightbox`** — owns `useState<number | null>(null)` (the open index),
+  provides an `openAt(index)` opener via a React context, renders its `children`
+  (the server-rendered MDX body), and renders the shared `<Lightbox items index
+  onClose onIndex />` beneath. It's the single owner of open state for the essay.
+- **`Shot`** — the clickable figure box. Inside a provider it's a real
+  `<button type="button">` (keyboard-openable, `cursor: zoom-in`) whose
+  `aria-label` is `Open photograph: <caption>` and whose `onClick` calls
+  `openAt(index)`; with no provider it degrades to a non-interactive `role="img"`
+  div so the figure still renders. Because the button is what's clicked, it's the
+  `document.activeElement` the lightbox captures as the opener — so Escape returns
+  focus to that figure.
+
+**Figures wired (Stage 4 point 2).** `mdx-components.tsx`'s `Figure` / `Pair` now
+render `Shot` instead of a plain div, passing `index={slotIndex[slot]}` where
+`slotIndex = { full: 0, pairA: 1, pairB: 2, end: 3 }`. Server components (the MDX
+body) render the client `Shot`s, and the client context from `EssayLightbox`
+flows to them across the server/client boundary.
+
+**The item set (Stage 4 points 1 + 3).** `page.tsx` builds the
+`LightboxItem[]` with `essayItems(essay)` in the order **[full, pairA, pairB,
+end]** — identical to `slotIndex` — each item carrying the figure's `.ph-*`
+`cls` (V4 sets `src` for next/image), `caption`, `#code`, and a framing `ratio`
+(full/end 16∶10, pair 4∶5). Because the set is exactly this essay's four figures
+and the lightbox wraps with `(i ± 1 + n) % n`, ← / → cycle through those four
+only. The article wraps `<Body />` in `<EssayLightbox items={essayItems(essay)}>`.
+
+**Styling.** `.essay-shot` gained the button reset (`display:block; width:100%;
+padding:0; border:none`), `cursor: zoom-in`, and a subtle translateY hover lift
+matching the collection card (no glow, per DESIGN.md). The `.lb-shot` in the
+lightbox is sized by each item's `ratio`.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds (all three essay routes).
+- Inspected the built HTML: each figure is now a
+  `<button type="button" class="essay-shot photo …-shot ph-…" aria-label="Open
+  photograph: <caption>">`, in reading order full → pairA → pairB → end. **Item
+  counts: africa 4, united-states 4, japan 4** (four clickable figures per essay,
+  matching the four-item lightbox set). The slot→index map and the `essayItems`
+  order line up, so figure _k_ opens image _k_.
+- The click-to-open / arrow-cycle / Escape-returns-focus behaviours are the
+  ported lightbox's proven logic driven by this wiring; the live click-through in
+  both themes is done in the Stage 5 walkthrough (interactivity can't be exercised
+  against static HTML). Verification here is by built output + code trace.
 
 ---
 

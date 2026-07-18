@@ -1,6 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import type { ReactNode } from "react";
 import { essays } from "@/site.config";
+import { Shot } from "@/components/essay-lightbox";
 
 // Reading-column components for the essay MDX bodies (content/essays/*.mdx).
 // Prose lives in the MDX; the FIGURE MANIFEST (which .ph-* / #code each slot
@@ -14,6 +15,12 @@ import { essays } from "@/site.config";
 // shared lightbox, and V4 swaps the gradient div for next/image.
 
 type Slot = "full" | "pairA" | "pairB" | "end";
+
+// The essay's lightbox item set is ordered [full, pairA, pairB, end]; a figure's
+// slot maps to its index in that set, so clicking it opens the lightbox there and
+// ← / → step through the essay's own figures. Kept in sync with the items array
+// built in app/journal/[collection]/page.tsx.
+const slotIndex: Record<Slot, number> = { full: 0, pairA: 1, pairB: 2, end: 3 };
 
 /** The mono caption line under a figure: accent #code badge + the caption. */
 function Caption({ code, cap }: { code: string; cap: string }) {
@@ -35,23 +42,24 @@ function PullQuote({ children }: { children?: ReactNode }) {
   return <blockquote className="pull">{children}</blockquote>;
 }
 
-/** A full-width figure, resolved from config.essays[essay][slot]. */
+/** A full-width figure (clickable — opens the shared lightbox at its index),
+    resolved from config.essays[essay][slot]. */
 function Figure({ essay, slot }: { essay: string; slot: Slot }) {
   const fig = essays[essay]?.[slot];
   if (!fig) return null;
   return (
     <figure className="full">
-      <div
+      <Shot
+        index={slotIndex[slot]}
         className={`essay-shot photo full-shot ${fig.cls}`}
-        role="img"
-        aria-label={fig.cap}
+        label={fig.cap}
       />
       <Caption code={fig.code} cap={fig.cap} />
     </figure>
   );
 }
 
-/** A two-up pair of figures with captions, resolved from config. */
+/** A two-up pair of clickable figures with captions, resolved from config. */
 function Pair({
   essay,
   a = "pairA",
@@ -67,18 +75,18 @@ function Pair({
   return (
     <div className="pair">
       <figure>
-        <div
+        <Shot
+          index={slotIndex[a]}
           className={`essay-shot photo pair-shot ${fa.cls}`}
-          role="img"
-          aria-label={fa.cap}
+          label={fa.cap}
         />
         <Caption code={fa.code} cap={fa.cap} />
       </figure>
       <figure>
-        <div
+        <Shot
+          index={slotIndex[b]}
           className={`essay-shot photo pair-shot ${fb.cls}`}
-          role="img"
-          aria-label={fb.cap}
+          label={fb.cap}
         />
         <Caption code={fb.code} cap={fb.cap} />
       </figure>

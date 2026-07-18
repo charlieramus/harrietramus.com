@@ -3,7 +3,7 @@
 Read this first. It's the orientation ritual: where the build actually is, what's
 real, and what's deliberately deferred. Updated at the end of each build log.
 
-_Last updated: end of **V2 — Landing & Journal**._
+_Last updated: end of **V3 — Essays & Lightbox**._
 
 ---
 
@@ -13,17 +13,20 @@ _Last updated: end of **V2 — Landing & Journal**._
 | --- | --- | --- |
 | **Foundation & Config** | ✅ Functional | Next.js 16 static-export app; `site.config.ts` single-source; `theme` → `themeToCss` token system; dark/light **lightswitch** (persists, no flash, defaults dark); nav + footer chrome on every page. |
 | **Landing & Journal** | ✅ Functional | Full-screen **landing** (blurred backdrop layer isolated from sharp grain/scrim; serif wordmark; scroll cue that smooth-scrolls to the wall) + the colour-coded **collection wall** (`CollectionCard` hero + `PlaceCard` stack, each collection in its `.acc-<hue>` — three accents at once). Every card routes to `/journal/[collection]`, pre-rendered as titled essay **stubs**. All from `site.config`; reads in both themes. |
-| **Essays & Lightbox** | ⬜ Not built | The photo-essay reading view (the `/journal/[collection]` stubs become the real thing) + the shared fullscreen lightbox. **V3.** |
-| **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the loose Photos board, the About page, real photos everywhere (swap the `.ph-*` stand-ins for `next/image`), launch. **V4.** |
+| **Essays & Lightbox** | ✅ Functional | Every Place opens a real **photo-essay** at `/journal/[collection]`: a sharp `.photo` hero (title/eyebrow/meta + back link) over a centred reading column — serif drop-cap lead, body, full-width figure, two-up pair, pull quote, closing figure, end rule — prose authored in `content/essays/*.mdx` (editable without touching components), figures resolved from `site.config.essays`. The whole page carries the collection's `.acc-<hue>`, so the drop-cap, pull-quote rule, caption codes, and end rule take its accent. Every figure opens the **shared fullscreen lightbox** (ported from `charlieramus.comv2`): controlled, `role="dialog"` + `aria-modal`, Escape closes + returns focus to the opener, ← / → step the essay's figures with wraparound, Tab focus-trap, body-scroll lock; caption + teal `#code` badge. The same lightbox V4's Photos board reuses. |
+| **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the loose Photos board (reuses the V3 lightbox), the About page, real photos everywhere (swap the `.ph-*` stand-ins for `next/image` — the lightbox already carries dormant `src`/`blurDataURL`), launch. **V4.** |
 
-**Real vs. locked:** the config, theme, lightswitch, chrome, and now the **home
-experience** (landing + collection wall) are real and verified (tsc + lint +
-static export green; the built markup + both-mode token blocks inspected). The
-`/journal/[collection]` essay pages, plus `/photos` and `/about`, are still
-**titled stubs** — placeholders, not the real surfaces. No fabricated images
-anywhere: every photo — the landing backdrop, every card — is an honest `.ph-*`
+**Real vs. locked:** the config, theme, lightswitch, chrome, the **home
+experience** (landing + collection wall), and now the **essays + shared
+lightbox** are real and verified — tsc + lint + static export green, plus a live
+walkthrough (home → Japan essay → open a figure → arrow through with wraparound →
+Escape returns focus → flip the lightswitch: legible and accent-correct in both
+modes). `/photos` and `/about` are still **titled stubs** — placeholders, not the
+real surfaces (V4). No fabricated images anywhere: every photo — the landing
+backdrop, every card, every essay figure and lightbox shot — is an honest `.ph-*`
 gradient stand-in until the real frames land in V4 (the `next/image` swap is
-already wired behind an unused `image` prop on both cards).
+already wired behind an unused `image` prop on the cards and the lightbox's
+dormant `src`/`blurDataURL`).
 
 ---
 

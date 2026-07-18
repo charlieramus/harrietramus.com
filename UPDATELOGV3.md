@@ -361,7 +361,68 @@ the updated NOW.md rows into this report.
 
 ## Stage 5 Report
 
-_Pending._
+Proved the reading experience end to end — this time with a **live browser
+walkthrough**, not just built-markup inspection — and updated the living doc.
+
+**Full run (Stage 5 point 1).**
+- `npx tsc --noEmit` → passes.
+- `npm run lint` → clean (no warnings/errors).
+- `npm run build` → static export green; routes: `/`, `/about`, `/photos`,
+  `/_not-found`, and the three SSG essays `/journal/africa`,
+  `/journal/united-states`, `/journal/japan`.
+
+**Literal walkthrough (Stage 5 point 2).** Ran `next dev` (port 3100) and drove
+it in a real headless Chromium (gstack browse). No console errors on any page.
+- **Home** → landing wordmark "Harriet", `data-mode="dark"` by default, 3
+  collection cards, all nine place links route to the right essay slug.
+- **Click a place → the essay** (`/journal/japan`): root class `essay
+  acc-tomato`, title "Quiet, then neon". **Accent-by-place holds** —
+  `--accent` computes to `#d1495b` and the serif drop-cap's `::first-letter` is
+  `rgb(209,73,91)` (that tomato).
+- **Open a figure in the lightbox** — clicking figure 0 opens
+  `role="dialog"` + `aria-modal="true"`, the `.lb-shot ph-kyoto` stand-in, caption
+  `#0021 A Kyoto side-street…`; the `#code` badge is `rgb(59,179,163)` =
+  `--c-teal (#3bb3a3)`; `document.body.overflow` = `hidden` (scroll-lock); focus
+  moves to Close.
+- **Arrow through** — `→` steps to `#0022` (ph-neon); from figure 0, `←`
+  **wraps** to `#0024` (the closing figure, ph-kyoto). Steps stay within Japan's
+  four figures.
+- **Escape** — closes the lightbox, clears the scroll-lock, and **returns focus
+  to the exact figure that opened it** (verified by opening figure 2 "#0023 Fuji
+  from Hakone" from a focused button and confirming `document.activeElement` was
+  that button after Escape).
+- **Flip the lightswitch** — `data-mode` flips dark→light; body bg
+  `#201d16`→`#f3ecdd`, reading ink `#f3ecdd`→`#201d16` (contrast inverts cleanly,
+  legible both ways); the tomato accent deepens to `#b23a4b` for cream and still
+  drives the pull-quote left-rule (`rgb(178,58,75)`). Screenshot confirmed the
+  full essay reads top-to-bottom in light mode: hero → drop-cap lead → figure →
+  two-up pair → pull quote → closing figure → end rule → "— Harriet".
+
+**NOW.md (Stage 5 point 3).** Moved **Essays & Lightbox** into the functional
+list and left **Photos & Pipeline** as the remaining V4 work; refreshed the "Real
+vs. locked" note and the "_Last updated_" line. The two rows now read:
+
+> | **Essays & Lightbox** | ✅ Functional | Every Place opens a real
+> **photo-essay** at `/journal/[collection]`: a sharp `.photo` hero
+> (title/eyebrow/meta + back link) over a centred reading column — serif drop-cap
+> lead, body, full-width figure, two-up pair, pull quote, closing figure, end
+> rule — prose authored in `content/essays/*.mdx` (editable without touching
+> components), figures resolved from `site.config.essays`. The whole page carries
+> the collection's `.acc-<hue>`, so the drop-cap, pull-quote rule, caption codes,
+> and end rule take its accent. Every figure opens the **shared fullscreen
+> lightbox** (ported from `charlieramus.comv2`): controlled, `role="dialog"` +
+> `aria-modal`, Escape closes + returns focus to the opener, ← / → step the
+> essay's figures with wraparound, Tab focus-trap, body-scroll lock; caption +
+> teal `#code` badge. The same lightbox V4's Photos board reuses. |
+>
+> | **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the
+> loose Photos board (reuses the V3 lightbox), the About page, real photos
+> everywhere (swap the `.ph-*` stand-ins for `next/image` — the lightbox already
+> carries dormant `src`/`blurDataURL`), launch. **V4.** |
+
+**Verify:** build/export green; walkthrough clean in both themes; lightbox a11y
+(dialog/modal, Escape+focus-return, arrow wraparound, scroll-lock, teal badge)
+intact. The Photos board + the real image pipeline remain deferred to V4.
 
 ---
 

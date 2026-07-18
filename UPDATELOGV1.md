@@ -281,7 +281,44 @@ prevention approach.
 
 ## Stage 4 Report
 
-_Pending._
+Built the dark/light lightswitch as a client component and wired it (plus the
+pre-paint mode script) into the layout.
+
+**`components/lightswitch.tsx` (`"use client"`):** a fixed bottom-right wall-plate
+holding a rocker (`.ls-plate` + `.ls-rocker`, styled in globals.css) that toggles
+`data-mode` on `document.documentElement`. It never *sets* the initial theme —
+the pre-paint script already did — it reads the current `data-mode` in a
+`useEffect` to stay in sync, then flips + persists on click.
+
+**Persistence + default:** writes the choice to `localStorage["harriet-mode"]`;
+defaults to **dark** on first visit (no stored value) and when storage throws
+(private mode). The `<html>` static attribute stays `data-mode="dark"`, so SSR and
+the first client render agree.
+
+**Flash prevention:** a tiny synchronous inline `<script>` in `<head>`
+(`MODE_SCRIPT`) reads `harriet-mode` and sets `document.documentElement.dataset.mode`
+to `light`/`dark` (else `dark`) **before the body is parsed or painted**. Because
+it's a blocking head script, the browser executes it before the first paint
+regardless of where the injected stylesheet `<link>` sits, so the very first frame
+already carries the correct palette — no flash of the wrong theme, and no
+dependence on React hydration.
+
+**A11y:** a real `<button>` with `aria-pressed` reflecting light-on, an
+`aria-label` naming the action, a visible focus ring on the plate
+(`:focus-visible`), and the rocker transition disabled under
+`prefers-reduced-motion`.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds; the switch + pre-paint script ship in
+  `out/index.html`.
+- Drove the built export in a real headless browser (served on :4321):
+  - First visit → `data-mode=dark`, `body` bg `rgb(32,29,22)` (`#201d16`),
+    stored value `null`, `aria-pressed=false`.
+  - Click → `data-mode=light`, bg `rgb(243,236,221)` (`#f3ecdd`), stored
+    `"light"`, `aria-pressed=true` — the whole UI flips warm-cream ↔ deep-ink.
+  - Reload → theme persists both directions (light→light, dark→dark).
+  - No console errors.
 
 ---
 

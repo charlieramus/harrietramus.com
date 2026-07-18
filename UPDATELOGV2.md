@@ -61,7 +61,67 @@ modes. Report how the blurred layer is isolated from the sharp overlays.
 
 ## Stage 1 Report
 
-_Pending._
+Built the full-screen landing from `config.landing` — `components/landing.tsx`
+(a server component; no client JS) plus a landing block in `globals.css`.
+
+**Layer isolation (how the blur is kept off the sharp overlays).** The three
+things that must not blur together — the photo, the grain/scrim, the text — are
+**separate sibling elements** inside a `.landing` section with `isolation:
+isolate`, stacked by `z-index`:
+
+- `z0 .landing-backdrop` — the **only** layer that carries `filter: blur()`. When
+  `backdropImage` is set it renders `background-image: url(...)` with
+  `filter: blur(<backdropBlur>px)` (inline, from config) and `transform:
+  scale(1.18)`; the scale over-fills the box so the blur's soft transparent edges
+  never reach the frame. When `backdropImage` is `""` (the case today) it falls
+  back to the `config.landing.backdrop` gradient class (`ph-dusk`) — no blur, it's
+  already soft — sharing the same `scale(1.18)`.
+- `z1 .landing-overlay .photo` — the sharp overlays: it reuses the `.photo`
+  primitive for the `::before` vignette + `::after` film grain, but overrides
+  `.photo`'s opaque `var(--bg2)` fill to `transparent` so the blurred layer shows
+  through and only the grain/vignette pseudo-elements paint. A `.scrim
+  .landing-scrim` child adds a full-frame dark wash (heavier at the foot) for
+  legibility. Because this sits **above** the backdrop rather than inside it, the
+  grain stays crisp — grain blurred with the photo would simply vanish, which is
+  the whole reason the layers are split.
+- `z2 .landing-content` — eyebrow (mono, accent) / serif wordmark
+  (`landing.title`) / tagline / subline.
+- `z2 .landing-cue` — the scroll cue.
+
+**Pulls up under the nav.** `.landing` has `margin-top: calc(-1 * var(--nav-h))`
+(new `--nav-h: 64px` structural token) so it fills the viewport from the very top,
+behind the sticky translucent header, with matching top padding so the content
+clears the nav. `min-height: 100dvh` (100vh fallback), flex-centred.
+
+**Scroll cue.** `config.landing.cue` ("Wander in") renders as an in-page anchor
+`<a href="#collections">` with a bobbing SVG chevron (`@keyframes cue-bob`). No
+client JS — the smooth glide comes from `html { scroll-behavior: smooth }` (added
+to globals), and the chevron bob + smooth scroll are both disabled by the existing
+global `prefers-reduced-motion` block. The `#collections` target is the wall
+anchor added in **Stage 3** per this log's plan, so today the cue is present and
+animated but scrolls to nothing until that anchor lands.
+
+**Both themes.** The content is fixed warm-cream (`#f3ecdd`) rather than
+`var(--ink)`: the scrim — not the theme ink — carries the contrast, so the text
+reads identically over the backdrop in light and dark mode. The eyebrow keeps
+`var(--accent)` (tomato default).
+
+**Wired for verify.** `app/page.tsx` now renders `<Landing />` so "/" shows the
+landing full-screen; Stage 3 assembles the intro band + wall around it.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds (`/`, `/about`, `/photos`,
+  `/_not-found`).
+- Inspected `out/index.html`: the landing renders from config — `<h1
+  class="landing-title">Harriet</h1>`, the `landing-backdrop ph-dusk` fallback
+  layer, the sharp `landing-overlay photo` + `scrim landing-scrim`, the eyebrow
+  "A travel journal", and the cue `<a class="landing-cue" href="#collections">`
+  ("Wander in"). Since `backdropImage` is `""`, the blurred-image path isn't
+  exercised at runtime yet (the `ph-dusk` gradient stands in per DESIGN.md); the
+  `filter: blur(backdropBlur px)` branch is in place for the real hero photo in
+  V4.
+- Verification here is by reading the built markup/CSS, not a browser screenshot.
 
 ---
 

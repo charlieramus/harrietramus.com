@@ -26,6 +26,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* In-page anchors (the landing scroll cue) glide; the reduced-motion block at
+     the foot of this file forces this back to `auto`. */
+  scroll-behavior: smooth;
 }
 
 img,
@@ -65,6 +68,7 @@ a {
   --maxw: 1200px; /* max content width */
   --board: 1100px; /* the Photos board column width (V4) */
   --read: 68ch; /* essay reading measure (V3) */
+  --nav-h: 64px; /* sticky header height — the landing pulls up by this */
 
   /* Motion. */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -233,6 +237,142 @@ button:focus-visible {
 }
 .ph-fuji {
   background-image: linear-gradient(170deg, #a9c1d6 0%, #6d86a3 50%, #3a3f5c 100%);
+}
+
+/* ------------------------------------------------ landing ------------------ */
+/* The full-viewport front door. It pulls up under the sticky nav so the blurred
+   backdrop fills the screen behind the translucent header; `isolation: isolate`
+   gives its layers their own stacking context. The three layers are separate
+   elements (see components/landing.tsx) precisely so the blur touches only the
+   photo — the grain, scrim, and text stay sharp above it. */
+.landing {
+  position: relative;
+  isolation: isolate;
+  margin-top: calc(-1 * var(--nav-h)); /* pull up under the sticky header */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: calc(var(--nav-h) + clamp(24px, 6vh, 56px)) clamp(20px, 5vw, 40px)
+    clamp(96px, 16vh, 160px);
+}
+
+/* Layer 0 — the blurred backdrop. filter: blur() is applied inline (image case);
+   scale(1.18) over-fills the box so the blur's soft edges never reach the frame.
+   The gradient fallback (.ph-* via the `backdrop` class) shares the scale but
+   needs no blur — it's already soft. */
+.landing-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  transform: scale(1.18);
+}
+
+/* Layer 1 — the sharp overlays. Reuses the .photo primitive for the vignette +
+   film grain, but its opaque var(--bg2) fill is overridden to transparent so the
+   blurred layer shows through; only the pseudo-element grain/vignette render. */
+.landing-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: transparent;
+}
+
+/* A fuller wash than the base bottom-only .scrim — the landing text is centred,
+   so darken the whole frame (a touch more at the foot) for legibility over a
+   bright OR dark photo, in both themes. */
+.landing-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.6) 0%,
+    rgba(0, 0, 0, 0.32) 45%,
+    rgba(0, 0, 0, 0.34) 100%
+  );
+}
+
+/* Layer 2 — the words. Always warm-cream ink: the scrim (not var(--ink)) carries
+   the contrast, so the text stays legible identically in light and dark mode. */
+.landing-content {
+  position: relative;
+  z-index: 2;
+  max-width: 760px;
+  color: #f3ecdd;
+  text-shadow: 0 1px 30px rgba(0, 0, 0, 0.35);
+}
+
+.landing-eyebrow {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  margin-bottom: clamp(16px, 3vh, 26px);
+}
+
+.landing-title {
+  font-size: clamp(64px, 15vw, 176px);
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  color: #f3ecdd;
+}
+
+.landing-tagline {
+  margin: clamp(20px, 3.5vh, 30px) auto 0;
+  max-width: 30ch;
+  font-size: clamp(17px, 2.2vw, 22px);
+  line-height: 1.5;
+  color: rgba(243, 236, 221, 0.92);
+}
+
+.landing-subline {
+  margin-top: 12px;
+  font-size: clamp(13px, 1.5vw, 15px);
+  letter-spacing: 0.01em;
+  color: rgba(243, 236, 221, 0.66);
+}
+
+/* The scroll cue — an in-page anchor to the wall, with a bobbing chevron. */
+.landing-cue {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: clamp(24px, 5vh, 48px);
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: rgba(243, 236, 221, 0.78);
+  transition: color 0.2s var(--ease);
+}
+
+.landing-cue:hover {
+  color: #f3ecdd;
+}
+
+.landing-cue-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+}
+
+.landing-chevron {
+  animation: cue-bob 1.9s var(--ease) infinite;
+}
+
+@keyframes cue-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
 }
 
 /* ------------------------------------------------ route stubs -------------- */

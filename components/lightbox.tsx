@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 
 /**
  * Shared fullscreen lightbox — ported from charlieramus.comv2 unchanged in
@@ -136,13 +137,32 @@ export default function Lightbox({
         )}
 
         <figure className="lightbox-figure">
-          {/* V4: swapped for <Image src={item.src} …> (same LightboxItem shape). */}
-          <div
-            className={`lb-shot photo ${item.cls}`}
-            style={{ ["--r" as string]: item.ratio }}
-            role="img"
-            aria-label={item.alt}
-          />
+          {/* When the item carries a real synced photo (V4), render next/image
+              (blur-up); otherwise fall back to the `.ph-*` gradient stand-in.
+              Both share the ratio-sized .lb-shot box, so nothing crops. */}
+          {item.src ? (
+            <div
+              className="lb-shot photo"
+              style={{ ["--r" as string]: item.ratio }}
+            >
+              <Image
+                src={item.src}
+                alt={item.alt}
+                fill
+                sizes="90vw"
+                className="lb-img"
+                placeholder={item.blurDataURL ? "blur" : "empty"}
+                blurDataURL={item.blurDataURL}
+              />
+            </div>
+          ) : (
+            <div
+              className={`lb-shot photo ${item.cls}`}
+              style={{ ["--r" as string]: item.ratio }}
+              role="img"
+              aria-label={item.alt}
+            />
+          )}
           {(item.caption || item.code) && (
             <figcaption className="lightbox-cap">
               {item.code && <span className="lightbox-code">#{item.code}</span>}

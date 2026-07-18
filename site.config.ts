@@ -202,6 +202,9 @@ export interface Place {
   cls: string;
   /** right-aligned meta label (region / country) */
   meta: string;
+  /** the `#code` of the synced photo (data/photos.ts) to show behind this card.
+   *  When it resolves, a real next/image renders; otherwise `cls` stands in. */
+  code?: string;
 }
 
 /** One trip. */
@@ -216,6 +219,9 @@ export interface Collection {
   essay: string;
   /** which trio hue tints this collection */
   accent: keyof Trio;
+  /** the `#code` of the synced photo (data/photos.ts) to show behind the hero.
+   *  When it resolves, a real next/image renders; otherwise `hero` stands in. */
+  code?: string;
   places: Place[];
 }
 
@@ -228,10 +234,11 @@ export const collections: Collection[] = [
     stat: "12 days · 3 countries",
     essay: "africa",
     accent: "mustard",
+    code: "0001",
     places: [
-      { name: "Serengeti", cls: "ph-savanna", meta: "Tanzania" },
-      { name: "Ngorongoro", cls: "ph-crater", meta: "Tanzania" },
-      { name: "Zanzibar", cls: "ph-sea", meta: "Tanzania" },
+      { name: "Serengeti", cls: "ph-savanna", meta: "Tanzania", code: "0001" },
+      { name: "Ngorongoro", cls: "ph-crater", meta: "Tanzania", code: "0002" },
+      { name: "Zanzibar", cls: "ph-sea", meta: "Tanzania", code: "0003" },
     ],
   },
   {
@@ -240,10 +247,11 @@ export const collections: Collection[] = [
     stat: "9 days · 2,400 miles",
     essay: "united-states",
     accent: "teal",
+    code: "0011",
     places: [
-      { name: "Moab", cls: "ph-canyon", meta: "Utah" },
-      { name: "Big Sur", cls: "ph-coast", meta: "California" },
-      { name: "Yosemite", cls: "ph-granite", meta: "California" },
+      { name: "Moab", cls: "ph-canyon", meta: "Utah", code: "0011" },
+      { name: "Big Sur", cls: "ph-coast", meta: "California", code: "0012" },
+      { name: "Yosemite", cls: "ph-granite", meta: "California", code: "0013" },
     ],
   },
   {
@@ -252,10 +260,11 @@ export const collections: Collection[] = [
     stat: "14 days · 4 cities",
     essay: "japan",
     accent: "tomato",
+    code: "0021",
     places: [
-      { name: "Kyoto", cls: "ph-kyoto", meta: "Kansai" },
-      { name: "Tokyo", cls: "ph-neon", meta: "Kantō" },
-      { name: "Hakone", cls: "ph-fuji", meta: "Kanagawa" },
+      { name: "Kyoto", cls: "ph-kyoto", meta: "Kansai", code: "0021" },
+      { name: "Tokyo", cls: "ph-neon", meta: "Kantō", code: "0022" },
+      { name: "Hakone", cls: "ph-fuji", meta: "Kanagawa", code: "0023" },
     ],
   },
 ];

@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, type ReactNode } from "react";
+import Image from "next/image";
 import Lightbox, { type LightboxItem } from "./lightbox";
 
 // The small client wrapper that owns the essay's open-lightbox index and renders
@@ -37,18 +38,41 @@ export function EssayLightbox({
 // (keyboard-openable, zoom-in cursor) that opens the lightbox at `index`; with no
 // provider it degrades to a non-interactive image div, so the figure still
 // renders. Focus lands on the button when clicked, so Escape returns focus to it.
+//
+// V4: when `src` resolves (the figure's #code mapped to a synced photo) a
+// next/image (blur-up) fills the box; otherwise the className's `.ph-*` gradient
+// stands in. The box is a `.photo` (position: relative), so fill positions cleanly.
 export function Shot({
   index,
   className,
   label,
+  src,
+  blurDataURL,
 }: {
   index: number;
   className: string;
   label: string;
+  src?: string;
+  blurDataURL?: string;
 }) {
   const openAt = useContext(OpenAtContext);
+  const img = src ? (
+    <Image
+      src={src}
+      alt=""
+      fill
+      sizes="(max-width: 1200px) 100vw, 1200px"
+      className="shot-img"
+      placeholder={blurDataURL ? "blur" : "empty"}
+      blurDataURL={blurDataURL}
+    />
+  ) : null;
   if (!openAt) {
-    return <div className={className} role="img" aria-label={label} />;
+    return (
+      <div className={className} role="img" aria-label={label}>
+        {img}
+      </div>
+    );
   }
   return (
     <button
@@ -56,6 +80,8 @@ export function Shot({
       className={className}
       aria-label={`Open photograph: ${label}`}
       onClick={() => openAt(index)}
-    />
+    >
+      {img}
+    </button>
   );
 }

@@ -2,6 +2,7 @@ import type { MDXComponents } from "mdx/types";
 import type { ReactNode } from "react";
 import { essays } from "@/site.config";
 import { Shot } from "@/components/essay-lightbox";
+import { photoByCode } from "@/lib/photos";
 
 // Reading-column components for the essay MDX bodies (content/essays/*.mdx).
 // Prose lives in the MDX; the FIGURE MANIFEST (which .ph-* / #code each slot
@@ -47,12 +48,18 @@ function PullQuote({ children }: { children?: ReactNode }) {
 function Figure({ essay, slot }: { essay: string; slot: Slot }) {
   const fig = essays[essay]?.[slot];
   if (!fig) return null;
+  const photo = photoByCode(fig.code);
+  const cls = photo
+    ? "essay-shot photo full-shot"
+    : `essay-shot photo full-shot ${fig.cls}`;
   return (
     <figure className="full">
       <Shot
         index={slotIndex[slot]}
-        className={`essay-shot photo full-shot ${fig.cls}`}
+        className={cls}
         label={fig.cap}
+        src={photo?.src}
+        blurDataURL={photo?.blurDataURL}
       />
       <Caption code={fig.code} cap={fig.cap} />
     </figure>
@@ -72,21 +79,29 @@ function Pair({
   const fa = essays[essay]?.[a];
   const fb = essays[essay]?.[b];
   if (!fa || !fb) return null;
+  const pa = photoByCode(fa.code);
+  const pb = photoByCode(fb.code);
+  const clsA = pa ? "essay-shot photo pair-shot" : `essay-shot photo pair-shot ${fa.cls}`;
+  const clsB = pb ? "essay-shot photo pair-shot" : `essay-shot photo pair-shot ${fb.cls}`;
   return (
     <div className="pair">
       <figure>
         <Shot
           index={slotIndex[a]}
-          className={`essay-shot photo pair-shot ${fa.cls}`}
+          className={clsA}
           label={fa.cap}
+          src={pa?.src}
+          blurDataURL={pa?.blurDataURL}
         />
         <Caption code={fa.code} cap={fa.cap} />
       </figure>
       <figure>
         <Shot
           index={slotIndex[b]}
-          className={`essay-shot photo pair-shot ${fb.cls}`}
+          className={clsB}
           label={fb.cap}
+          src={pb?.src}
+          blurDataURL={pb?.blurDataURL}
         />
         <Caption code={fb.code} cap={fb.cap} />
       </figure>

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { collections, essays, wordmark, type Essay } from "@/site.config";
 import type { LightboxItem } from "@/components/lightbox";
 import { EssayLightbox } from "@/components/essay-lightbox";
+import { photoByCode } from "@/lib/photos";
 import Africa from "@/content/essays/africa.mdx";
 import UnitedStates from "@/content/essays/united-states.mdx";
 import Japan from "@/content/essays/japan.mdx";
@@ -25,13 +26,18 @@ const essayBodies: Record<string, ComponentType> = {
 // essay's figures only. `cls` is the .ph-* stand-in (V4 sets `src` for
 // next/image); the ratios frame each shot in the viewer without cropping.
 function essayItems(essay: Essay): LightboxItem[] {
-  const item = (f: Essay["full"], ratio: number): LightboxItem => ({
-    cls: f.cls,
-    alt: f.cap,
-    caption: f.cap,
-    code: f.code,
-    ratio,
-  });
+  const item = (f: Essay["full"], ratio: number): LightboxItem => {
+    const photo = photoByCode(f.code);
+    return {
+      cls: f.cls,
+      alt: f.cap,
+      caption: f.cap,
+      code: f.code,
+      ratio,
+      src: photo?.src,
+      blurDataURL: photo?.blurDataURL,
+    };
+  };
   return [
     item(essay.full, 16 / 10),
     item(essay.pairA, 4 / 5),

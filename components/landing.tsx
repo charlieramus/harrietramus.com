@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { landing } from "@/site.config";
 
 // The full-screen front door, rendered entirely from config.landing. It pulls up
@@ -39,19 +40,27 @@ export default function Landing() {
 
   return (
     <section className="landing" aria-label="Introduction">
-      {/* The isolated blurred layer — the one thing that gets filter: blur(). */}
-      <div
-        className={hasImage ? "landing-backdrop" : `landing-backdrop ${backdrop}`}
-        aria-hidden="true"
-        style={
-          hasImage
-            ? {
-                backgroundImage: `url(${backdropImage})`,
-                filter: `blur(${backdropBlur}px)`,
-              }
-            : undefined
-        }
-      />
+      {/* The isolated blurred layer — the one thing that gets filter: blur().
+          V4: a real backdropImage renders as a next/image (fill) inside the
+          blurred, over-scaled box; with none, the `backdrop` gradient stands in. */}
+      {hasImage ? (
+        <div
+          className="landing-backdrop"
+          aria-hidden="true"
+          style={{ filter: `blur(${backdropBlur}px)` }}
+        >
+          <Image
+            src={backdropImage}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="landing-backdrop-img"
+          />
+        </div>
+      ) : (
+        <div className={`landing-backdrop ${backdrop}`} aria-hidden="true" />
+      )}
 
       {/* Sharp overlays: vignette + grain (.photo) and the legibility scrim. */}
       <div className="landing-overlay photo" aria-hidden="true">

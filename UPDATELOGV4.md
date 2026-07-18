@@ -182,7 +182,53 @@ fabricated content. Report which surfaces resolved to real images vs fallback.
 
 ## Stage 3 Report
 
-_Pending._
+Replaced the `.ph-*` placeholders with real `next/image` wherever a photo resolves,
+keeping the gradient as the fallback everywhere it doesn't.
+
+**The resolver**
+- `lib/photos.ts` (new) — `photoByCode(code?)` builds a `Map<code, Photo>` over the
+  generated `data/photos.ts` and returns the real photo (src + blurDataURL + ratio)
+  for a `#code`, or `undefined` when none is synced. That's the single keying
+  mechanism the cards + essay figures + essay-lightbox items use.
+- `site.config.ts` — added optional `code?` to `Collection` and `Place` (documented),
+  wired to the essay/photo `#code`s (Africa `0001`, US `0011`, Japan `0021`; each
+  place to its own frame). Unset codes / unsynced photos → gradient fallback.
+
+**The swaps**
+- **Landing** (`components/landing.tsx`): a set `landing.backdropImage` now renders a
+  blurred `next/image` (`fill`, `priority`) inside the over-scaled backdrop box;
+  `""` keeps the `.ph-dusk` gradient. New `.landing-backdrop-img { object-fit: cover }`.
+- **Collection + place cards** (`collection-card.tsx`, `place-card.tsx`): resolve by
+  `code` and render `next/image` (`fill`, blur-up) behind the overlays, else the
+  `.ph-*` gradient. Dropped the old dormant `image?` prop + raw `<img>`; existing
+  `.collection-img`/`.place-img` cover rules reused.
+- **Essay figures** (`mdx-components.tsx` + `Shot` in `essay-lightbox.tsx`): `Shot`
+  now takes `src`/`blurDataURL` and renders a `next/image` fill inside the `.photo`
+  button when the figure's `#code` resolves; the gradient class is dropped in that
+  case. New `.shot-img { object-fit: cover }`.
+- **Lightbox** (`components/lightbox.tsx`): renders `next/image` (blur-up) when
+  `item.src` is present, else the `.ph-*` div — same ratio-sized `.lb-shot` box, no
+  API change. `essayItems` (journal page) now resolves `src`/`blurDataURL` by code so
+  the essay viewer shows real frames too. New `.lb-img { object-fit: cover }` +
+  `position: relative` on `.lb-shot`.
+
+**Verify** (all green)
+- `npx tsc --noEmit`; `npm run build`.
+- **Shipped (empty) state:** home renders **0** `next/image` (grep) — every surface
+  is a clean `.ph-*` gradient (ph-savanna/canyon/kyoto present), no broken boxes.
+- **Real-image path exercised** with 4 sample photos synced to codes `0001`/`0011`/
+  `0021` + a landing hero, then reverted: the export resolved real images on **all
+  four surfaces** — landing (`landing-backdrop-img` + `/photos/hero.webp`), the three
+  collection heroes + their mapped place cards (`collection-img`/`place-img`), and the
+  Africa `full` essay figure (`shot-img`, code `0001`) — while **unmapped** codes fell
+  back to gradients (`ph-crater`, `ph-sea`, `ph-neon`, `ph-coast`). No fabricated
+  content: samples + `gallery.json` + the landing edit were removed after verifying;
+  `data/photos.ts` ships empty.
+
+**Resolved to real vs fallback (on the sample run):** landing hero, all 3 collection
+heroes, 3 mapped place cards, 1 essay figure → **real**; every other place card,
+essay pair/end figure, and the whole board → **gradient/empty fallback**. Shipped
+state: **all fallback** (no photos yet), which is correct.
 
 ---
 

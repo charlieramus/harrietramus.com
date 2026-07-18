@@ -64,7 +64,60 @@ and body-scroll lock all work. Report the a11y checks passed.
 
 ## Stage 1 Report
 
-_Pending._
+Ported the shared lightbox from `charlieramus.comv2` into
+`components/lightbox.tsx` (behaviour unchanged) plus a `.lightbox*` block in
+`globals.css`. It is the one viewer both the essays (this log) and the V4 Photos
+board reuse — no second copy.
+
+**Component — controlled, behaviour verbatim.** Same API as the source:
+`{ items, index, onClose, onIndex }`, `index === null` means closed. The
+`LightboxItem` type and every a11y affordance carried over unchanged:
+- `role="dialog"` + `aria-modal="true"` + `aria-label` (caption, else alt).
+- **Escape** closes; **← / →** step with wraparound
+  (`(i - 1 + n) % n` / `(i + 1) % n`); the key handler is bound only while open.
+- **Tab focus-trap**: `keydown` on Tab finds the dialog's `button` nodes and
+  wraps from last→first (and Shift+Tab first→last), so focus never leaves the
+  dialog.
+- **Body-scroll lock**: `document.body.style.overflow = "hidden"` on open,
+  restored on close.
+- **Focus management**: the opener (`document.activeElement`) is captured on
+  open, Close is focused on open, and focus is returned to the opener on close.
+- Prev/Next render only when `items.length > 1`.
+
+**The one adaptation (Stage 1 point 3).** Real photos land in V4, so the figure
+renders each item's `.ph-*` gradient stand-in in a `.lb-shot` div sized by the
+item `ratio` (passed inline as `--r`), instead of `next/image`. This sits behind
+the **same** `LightboxItem` shape — the type still carries the dormant `src` /
+`blurDataURL` fields — so V4 swaps the div for `<Image src={item.src} …>` with no
+API change. `.lb-shot` is a `.photo`, so the stand-in still gets the grain +
+vignette, and it's sized `width: min(90vw, 1400px, calc(80vh * var(--r)))` with
+`aspect-ratio: var(--r)`, which keeps the box within 90vw/1400px **and** 80vh
+while never cropping.
+
+**Token adaptation only (Stage 1 point 2).** The CSS is the source verbatim
+except the two tokens the spec calls out: the button `:hover` uses
+`var(--accent)` (was the sibling's `--color-red`) and the `#code` badge uses
+`var(--c-teal)` (was `--color-cyan`); the badge also picks up `var(--font-mono)`.
+The backdrop stays deep-ink (`rgba(10,10,8,.92)`) regardless of mode per
+DESIGN.md. The `prefers-reduced-motion` rules came across (kills the `lb-fade`
+open animation + the button transition), on top of the existing global
+reduced-motion block.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds. Mounted the lightbox on a temporary
+  `app/lb-scratch` client page (three items with differing ratios/captions/codes)
+  wired to `useState<number | null>`; it compiled and pre-rendered as its own
+  static route (`○ /lb-scratch` in the route table), confirming the controlled
+  component mounts and type-checks against real `LightboxItem[]` data. The
+  scratch page was then removed so it isn't committed (route table back to the
+  V2 set + the three `journal/[collection]` routes).
+- The a11y affordances above were confirmed by tracing the ported logic (it is
+  behaviourally identical to the proven `charlieramus.comv2` viewer) against the
+  built component; a live click-through in a browser is done in the **Stage 5**
+  walkthrough, once the lightbox is wired into the real essays (Stage 4), rather
+  than against a throwaway scratch page. Verification here is by code + built
+  output, consistent with the V2 reports.
 
 ---
 

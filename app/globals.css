@@ -736,6 +736,131 @@ button:focus-visible {
   }
 }
 
+/* ------------------------------------------------ lightbox ----------------- */
+/* The shared fullscreen viewer (components/lightbox.tsx), ported from
+   charlieramus.comv2. It goes fully dark regardless of mode (DESIGN.md) so a
+   single photograph holds the screen. Adapted tokens only: the button hover +
+   #code badge use this project's --accent / --c-teal. Because real photos land
+   in V4, the figure renders each item's .ph-* stand-in in a .lb-shot div sized
+   by the item ratio (passed inline as --r) rather than next/image. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 10, 8, 0.92);
+  padding: clamp(12px, 3vw, 40px);
+  animation: lb-fade 0.2s ease;
+}
+@keyframes lb-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.lightbox-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lightbox-figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+/* The stand-in shot: a .photo (carries grain + vignette) sized to keep its
+   aspect ratio while fitting inside both 90vw/1400px and 80vh. --r is the item
+   ratio, set inline; capping width by 80vh*--r keeps height ≤ 80vh. In V4 an
+   <Image> replaces this div with no other change. */
+.lb-shot {
+  width: min(90vw, 1400px, calc(80vh * var(--r, 1.5)));
+  aspect-ratio: var(--r, 1.5);
+  border-radius: 6px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+}
+.lightbox-cap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: min(90vw, 720px);
+  color: #d8d7d0;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}
+.lightbox-code {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--c-teal);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.lightbox-btn {
+  position: absolute;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+  transition: background 0.18s ease;
+}
+.lightbox-btn:hover {
+  background: var(--accent);
+}
+.lightbox-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+.lightbox-close {
+  top: clamp(4px, 1vw, 12px);
+  right: clamp(4px, 1vw, 12px);
+  width: 40px;
+  height: 40px;
+  font-size: 15px;
+}
+.lightbox-prev,
+.lightbox-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 48px;
+  height: 48px;
+  font-size: 26px;
+  padding-bottom: 4px;
+}
+.lightbox-prev {
+  left: clamp(6px, 2vw, 24px);
+}
+.lightbox-next {
+  right: clamp(6px, 2vw, 24px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lightbox {
+    animation: none;
+  }
+  .lightbox-btn {
+    transition: none;
+  }
+}
+
 /* ------------------------------------------------ reduced-motion honour ---- */
 @media (prefers-reduced-motion: reduce) {
   * {

@@ -294,7 +294,48 @@ build-state rows into this report.
 
 ## Stage 4 Report
 
-_Pending._
+Proved the home experience end to end and updated the living doc.
+
+**Full run.**
+- `npx tsc --noEmit` → clean.
+- `npm run lint` → surfaced two `@next/next/no-img-element` **warnings** on the
+  dormant `<img>` branches in `collection-card.tsx` / `place-card.tsx`. Those
+  branches are exactly what V4 swaps to `next/image`, so I silenced each with a
+  targeted `eslint-disable-next-line` + a comment naming the V4 swap — lint now
+  runs **clean** (0 errors, 0 warnings) without hiding a real issue.
+- `npm run build` → static export green; routes `/`, `/about`, `/photos`,
+  `/journal/[collection]` (→ `africa`, `united-states`, `japan`), `/_not-found`.
+
+**Walkthrough (by inspecting the built export — no browser screenshots claimed).**
+- **Landing** renders from config: `<h1 class="landing-title">Harriet</h1>`, the
+  isolated `landing-backdrop ph-dusk` layer, the sharp `landing-overlay photo` +
+  `scrim`, the eyebrow, and the cue `<a class="landing-cue" href="#collections">`.
+- **Scroll cue → wall**: the cue's `#collections` target exists on the wall
+  (`id="collections" class="wall"`, `scroll-margin-top: var(--nav-h)`); smooth
+  scroll via `html { scroll-behavior: smooth }`, disabled under reduced motion.
+- **Three accent hues**: the wall carries `collection acc-mustard` (Africa),
+  `acc-teal` (United States), `acc-tomato` (Japan); the injected `<style>` ships
+  both `[data-mode="dark"]` and `[data-mode="light"]` blocks with the full trio in
+  each (dark `#d1495b/#3bb3a3/#e9b64a`, light-deepened `#b23a4b/#2b8677/#c8912f`),
+  so `.acc-*` → `var(--accent)` resolves the stat numbers + arrows to each hue in
+  **both themes**. The V1 lightswitch flips `data-mode` between those two blocks —
+  landing content stays warm-cream over its scrim, so it reads either way.
+- **Into each essay**: every card links `/journal/<essay>` and all three stubs
+  export (`africa.html` = `<h1>The long grass</h1>`, eyebrow "Collection · Africa",
+  wrapped `route-stub acc-mustard`; likewise US + Japan).
+
+**`NOW.md` updated.** "Landing & Journal" moved into the ✅ Functional list; the
+"Real vs. locked" note now marks the home experience real and the
+`/journal/[collection]` essays + `/photos` + `/about` as the remaining stubs;
+essays + lightbox (V3) and real photos/Photos board (V4) noted as pending. Updated
+build-state rows:
+
+| Area | State | Notes |
+| --- | --- | --- |
+| **Foundation & Config** | ✅ Functional | Next.js 16 static-export app; `site.config.ts` single-source; `theme` → `themeToCss` token system; dark/light **lightswitch** (persists, no flash, defaults dark); nav + footer chrome on every page. |
+| **Landing & Journal** | ✅ Functional | Full-screen **landing** (blurred backdrop layer isolated from sharp grain/scrim; serif wordmark; scroll cue that smooth-scrolls to the wall) + the colour-coded **collection wall** (`CollectionCard` hero + `PlaceCard` stack, each collection in its `.acc-<hue>` — three accents at once). Every card routes to `/journal/[collection]`, pre-rendered as titled essay **stubs**. All from `site.config`; reads in both themes. |
+| **Essays & Lightbox** | ⬜ Not built | The photo-essay reading view (the `/journal/[collection]` stubs become the real thing) + the shared fullscreen lightbox. **V3.** |
+| **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the loose Photos board, the About page, real photos everywhere (swap the `.ph-*` stand-ins for `next/image`), launch. **V4.** |
 
 ---
 

@@ -29,7 +29,9 @@ export default function CollectionCard({
     <Link href={`/journal/${collection.essay}`} className="collection-card">
       <div className={image ? "photo collection-hero" : `photo collection-hero ${collection.hero}`}>
         {image ? (
-          // V4: a real next/image drops in here with the same props.
+          // V4: this raw <img> is swapped for next/image (blurDataURL) with the
+          // same props; until then the branch is dormant (no images exist yet).
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={image} alt="" className="collection-img" />
         ) : null}
         <span className="scrim" />

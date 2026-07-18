@@ -25,6 +25,8 @@ export default function PlaceCard({
       href={`/journal/${essay}`}
       className={image ? "place-card photo" : `place-card photo ${place.cls}`}
     >
+      {/* V4: swapped for next/image (same props); dormant until images exist. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       {image ? <img src={image} alt="" className="place-img" /> : null}
       <span className="scrim place-scrim" />
       <span className="place-name">{place.name}</span>

@@ -3,7 +3,7 @@
 Read this first. It's the orientation ritual: where the build actually is, what's
 real, and what's deliberately deferred. Updated at the end of each build log.
 
-_Last updated: end of **V1 — Foundation & Config**._
+_Last updated: end of **V2 — Landing & Journal**._
 
 ---
 
@@ -11,16 +11,19 @@ _Last updated: end of **V1 — Foundation & Config**._
 
 | Area | State | Notes |
 | --- | --- | --- |
-| **Foundation & Config** | ✅ Functional | Next.js 16 static-export app; `site.config.ts` single-source; `theme` → `themeToCss` token system; dark/light **lightswitch** (persists, no flash, defaults dark); nav + footer chrome on every page; `/`, `/photos`, `/about` route stubs. |
-| **Landing & Journal** | ⬜ Not built | Blurred hero landing + the colour-coded collection wall. **V2.** |
-| **Essays & Lightbox** | ⬜ Not built | The photo-essay reading view + the shared fullscreen lightbox. **V3.** |
-| **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the loose Photos board, the About page, real photos everywhere, launch. **V4.** |
+| **Foundation & Config** | ✅ Functional | Next.js 16 static-export app; `site.config.ts` single-source; `theme` → `themeToCss` token system; dark/light **lightswitch** (persists, no flash, defaults dark); nav + footer chrome on every page. |
+| **Landing & Journal** | ✅ Functional | Full-screen **landing** (blurred backdrop layer isolated from sharp grain/scrim; serif wordmark; scroll cue that smooth-scrolls to the wall) + the colour-coded **collection wall** (`CollectionCard` hero + `PlaceCard` stack, each collection in its `.acc-<hue>` — three accents at once). Every card routes to `/journal/[collection]`, pre-rendered as titled essay **stubs**. All from `site.config`; reads in both themes. |
+| **Essays & Lightbox** | ⬜ Not built | The photo-essay reading view (the `/journal/[collection]` stubs become the real thing) + the shared fullscreen lightbox. **V3.** |
+| **Photos & Pipeline** | ⬜ Not built | `sync-gallery` image pipeline, the loose Photos board, the About page, real photos everywhere (swap the `.ph-*` stand-ins for `next/image`), launch. **V4.** |
 
-**Real vs. locked:** the config, theme, lightswitch, and chrome are real and
-verified (tsc + lint + static export green; walked through in a browser, both
-themes). The home/photos/about pages are **titled stubs** — placeholders, not the
-real surfaces. No fabricated images anywhere: where a photo isn't shot/synced yet,
-an honest `.ph-*` gradient stands in.
+**Real vs. locked:** the config, theme, lightswitch, chrome, and now the **home
+experience** (landing + collection wall) are real and verified (tsc + lint +
+static export green; the built markup + both-mode token blocks inspected). The
+`/journal/[collection]` essay pages, plus `/photos` and `/about`, are still
+**titled stubs** — placeholders, not the real surfaces. No fabricated images
+anywhere: every photo — the landing backdrop, every card — is an honest `.ph-*`
+gradient stand-in until the real frames land in V4 (the `next/image` swap is
+already wired behind an unused `image` prop on both cards).
 
 ---
 

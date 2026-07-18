@@ -109,6 +109,38 @@ single photograph hold the screen.
 
 ---
 
+## Essay reading layout (refactored V5)
+
+An essay reads like a clean **New York Times / Google-Doc article**: one relatively
+wide column where the text and the images share a single measure.
+
+- **One unified column.** `--essay-col` (`min(880px, 92vw)`) is the whole measure.
+  Both the reading text *and* every figure (`.full`, `.pair`) sit at this exact width,
+  centred with symmetric whitespace on both sides. Nothing breaks out wider than the
+  text — the widest image is exactly as wide as the paragraph above it (big, but never
+  full-bleed). Because the text runs as wide as the images, the body is set at ~19px /
+  1.75 leading so the longer measure still reads. (The About page keeps its own tighter
+  `--read` measure — this is essay-only.)
+- **Text masthead, no photo overlay.** The piece opens with a masthead *inside* the
+  column: a back kicker, the small accent eyebrow, the serif headline as **text** (not
+  set over an image), a quiet mono byline, and a hairline divider. The former hero photo
+  then follows as the **lead image at column width**.
+- **Quiet typography.** No drop-cap — the lead is a clean paragraph (a touch larger than
+  the body). The pull quote is a **centred serif quote** with generous margins and a thin
+  hairline above/below — not a heavy accent left-rule. Figure corners are near-square
+  (~2px) for the editorial feel; captions stay small, quiet, left-aligned.
+- **Accent-by-place, quieter.** The collection's `.acc-*` hue still themes the page, but
+  now shows only in the small eyebrow/kicker, the caption `#code` badge, and the end
+  rule — not a big drop-cap or a thick quote bar. Colour still comes mostly from the
+  photographs.
+
+This supersedes the earlier V3 layout (a narrow ~68ch reading column with figures that
+broke out much wider than the text, plus a serif accent drop-cap and an accent-rule pull
+quote). The lightbox wiring, accent-by-place, back link, metadata, and MDX prose are
+unchanged — only the layout and type moved.
+
+---
+
 ## Rules
 
 - **Photos carry the colour. No decorative gradients.** The UI is warm-neutral;

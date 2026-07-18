@@ -231,7 +231,76 @@ NOW.md note into this report.
 
 ## Stage 3 Report
 
-_Pending._
+Proved the new reading layout across all essays and recorded it.
+
+**1. Full run.** `npx tsc --noEmit` clean; `npm run lint` clean (no warnings/errors);
+`npm run build` green — all 13 routes, the three `/journal/*` essays SSG'd, `out/`
+exported.
+
+**2. Walkthrough — all three essays, both themes.** Verified over the built `out/` at
+the HTML + token level (this environment has no display, so this is a structural/CSS
+walkthrough, not a pixel screenshot):
+- `out/journal/africa.html` (`.acc-mustard`), `united-states.html` (`.acc-teal`),
+  `japan.html` (`.acc-tomato`) — accent-by-place intact on `<main>`.
+- Each carries `.essay-masthead` + `.essay-headline` (serif headline as text) +
+  `.essay-lead` (column-width lead image); **no** `.essay-hero` / `.essay-title` /
+  `lead::first-letter` anywhere.
+- Each renders **4** `Open photograph:` `Shot` buttons (full, pairA, pairB, end) — the
+  `[full, pairA, pairB, end]` lightbox item set + `slotIndex` are unchanged, so every
+  figure still opens the lightbox and ← / → step the essay's own set.
+- `← All collections` back link, `essay-cap-code` accent `#code` badges, and the centred
+  `.pull` quote all present.
+- Both themes: the injected theme CSS carries both `[data-mode="dark"]` and
+  `[data-mode="light"]` blocks, and the masthead/quote/rule use `var(--ink)` /
+  `var(--ink-soft)` / `var(--line)` / `var(--accent)` only — no hard-coded colours — so
+  they recolour with the mode by construction (dark is default).
+- Narrow viewport: the `@media (max-width: 560px) { .pair { grid-template-columns: 1fr } }`
+  collapse is untouched, so the two-up pair still stacks to a single column.
+
+**3. DESIGN.md** — added an **"Essay reading layout (refactored V5)"** section (the doc
+had no prior essay-layout section to overwrite, so this adds the canonical description
+and explicitly supersedes the V3 approach). The section:
+
+> An essay reads like a clean **New York Times / Google-Doc article**: one relatively
+> wide column where the text and the images share a single measure.
+> - **One unified column.** `--essay-col` (`min(880px, 92vw)`) is the whole measure.
+>   Both the reading text *and* every figure (`.full`, `.pair`) sit at this exact width,
+>   centred with symmetric whitespace on both sides. Nothing breaks out wider than the
+>   text — the widest image is exactly as wide as the paragraph above it (big, but never
+>   full-bleed). Because the text runs as wide as the images, the body is set at ~19px /
+>   1.75 leading so the longer measure still reads. (The About page keeps its own tighter
+>   `--read` measure — this is essay-only.)
+> - **Text masthead, no photo overlay.** The piece opens with a masthead *inside* the
+>   column: a back kicker, the small accent eyebrow, the serif headline as **text** (not
+>   set over an image), a quiet mono byline, and a hairline divider. The former hero photo
+>   then follows as the **lead image at column width**.
+> - **Quiet typography.** No drop-cap — the lead is a clean paragraph (a touch larger than
+>   the body). The pull quote is a **centred serif quote** with generous margins and a thin
+>   hairline above/below — not a heavy accent left-rule. Figure corners are near-square
+>   (~2px) for the editorial feel; captions stay small, quiet, left-aligned.
+> - **Accent-by-place, quieter.** The collection's `.acc-*` hue still themes the page, but
+>   now shows only in the small eyebrow/kicker, the caption `#code` badge, and the end
+>   rule — not a big drop-cap or a thick quote bar. Colour still comes mostly from the
+>   photographs.
+
+**4. NOW.md** — bumped "Last updated" to end of **V5 — Essay Reading Layout**, and
+appended to the Essays & Lightbox cell:
+
+> **V5 refactored the reading layout** to a single New York Times / Google-Doc column:
+> one `--essay-col` (`min(880px, 92vw)`) measure shared by the text *and* every figure
+> (the old wide break-out is gone, so the widest image equals the text width, body bumped
+> to ~19px/1.75), a clean **text masthead** (back kicker + accent eyebrow + serif
+> headline-as-text + mono byline + hairline) with the former hero photo as a column-width
+> lead image, **no drop-cap**, and a **centred hairline pull quote** — accent-by-place now
+> shows only in the eyebrow/`#code`/rules. Lightbox wiring, back link, metadata, MDX
+> prose, and accent-by-place all unchanged.
+
+**Verify:** build/lint/export green; all three essays read as one centred column (text
+== widest image) with the clean masthead, no drop-cap, and the centred pull quote; no
+lightbox/routing/accent regressions. **Deviation:** DESIGN.md had no standalone
+essay-layout section, so Stage 3.3's "rewrite … supersede" was satisfied by adding the
+section with an explicit note that it supersedes the V3 narrow-column/break-out/drop-cap
+approach.
 
 ---
 

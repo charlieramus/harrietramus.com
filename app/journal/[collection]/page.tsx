@@ -1,7 +1,21 @@
 import type { Metadata } from "next";
+import type { ComponentType } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { collections, essays, wordmark } from "@/site.config";
+import Africa from "@/content/essays/africa.mdx";
+import UnitedStates from "@/content/essays/united-states.mdx";
+import Japan from "@/content/essays/japan.mdx";
+
+// The essay prose lives in content/essays/*.mdx (editable without touching this
+// component); the figure manifest stays in site.config.essays and is resolved by
+// the MDX reading-column components (see mdx-components.tsx). This map wires each
+// collection slug to its MDX body.
+const essayBodies: Record<string, ComponentType> = {
+  africa: Africa,
+  "united-states": UnitedStates,
+  japan: Japan,
+};
 
 // /journal/[collection] — the photo-essay reading view (V3). The slug is the
 // collection's `essay` key. This replaces the V2 stub with the real template:
@@ -42,6 +56,7 @@ export default async function EssayPage({
   if (!essay) notFound();
 
   const accent = collections.find((c) => c.essay === collection)?.accent;
+  const Body = essayBodies[collection];
 
   return (
     <main className={accent ? `essay acc-${accent}` : "essay"}>
@@ -59,65 +74,11 @@ export default async function EssayPage({
         </div>
       </header>
 
-      {/* Reading column. Stage 3 swaps this config-driven body for the MDX
-          essay body (same structure, prose authored in content/essays/*.mdx). */}
+      {/* Reading column. The prose + figures come from the collection's MDX
+          body (content/essays/*.mdx) via the reading-column components in
+          mdx-components.tsx; the end rule + signature stay structural here. */}
       <article className="reading">
-        <p className="lead">{essay.lead}</p>
-        <p>{essay.p1}</p>
-
-        <figure className="full">
-          <div
-            className={`essay-shot photo full-shot ${essay.full.cls}`}
-            role="img"
-            aria-label={essay.full.cap}
-          />
-          <figcaption className="essay-cap mono">
-            <span className="essay-cap-code">#{essay.full.code}</span>
-            {essay.full.cap}
-          </figcaption>
-        </figure>
-
-        <div className="pair">
-          <figure>
-            <div
-              className={`essay-shot photo pair-shot ${essay.pairA.cls}`}
-              role="img"
-              aria-label={essay.pairA.cap}
-            />
-            <figcaption className="essay-cap mono">
-              <span className="essay-cap-code">#{essay.pairA.code}</span>
-              {essay.pairA.cap}
-            </figcaption>
-          </figure>
-          <figure>
-            <div
-              className={`essay-shot photo pair-shot ${essay.pairB.cls}`}
-              role="img"
-              aria-label={essay.pairB.cap}
-            />
-            <figcaption className="essay-cap mono">
-              <span className="essay-cap-code">#{essay.pairB.code}</span>
-              {essay.pairB.cap}
-            </figcaption>
-          </figure>
-        </div>
-
-        <blockquote className="pull">{essay.quote}</blockquote>
-
-        <p>{essay.p2}</p>
-
-        <figure className="full">
-          <div
-            className={`essay-shot photo full-shot ${essay.end.cls}`}
-            role="img"
-            aria-label={essay.end.cap}
-          />
-          <figcaption className="essay-cap mono">
-            <span className="essay-cap-code">#{essay.end.code}</span>
-            {essay.end.cap}
-          </figcaption>
-        </figure>
-
+        {Body ? <Body /> : null}
         <hr className="end-rule" />
         <p className="essay-sign">{`— ${wordmark}`}</p>
       </article>

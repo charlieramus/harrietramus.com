@@ -222,7 +222,52 @@ the drop-cap + rule. Report which MDX components you registered.
 
 ## Stage 3 Report
 
-_Pending._
+Moved the essay prose into MDX and wired it through registered reading-column
+components, so writing is now editable without touching any component.
+
+**MDX bodies (Stage 3 point 1).** `content/essays/africa.mdx`,
+`united-states.mdx`, `japan.mdx` — each with frontmatter `slug:` (matching the
+collection) and the lead / p1 / quote / p2 prose seeded from the config strings.
+A body reads:
+`<Lead>…</Lead>` → a body `<p>` → `<Figure … slot="full" />` →
+`<Pair … />` → `<PullQuote>…</PullQuote>` → a body `<p>` →
+`<Figure … slot="end" />`. Only prose lives in the MDX; figures are referenced by
+`essay` slug + `slot` name, never by their `.ph-*`/`#code` (that manifest stays
+in config).
+
+**Registered MDX components (Stage 3 point 2).** Extended `mdx-components.tsx`
+(`useMDXComponents` now merges over any caller-provided map) with five:
+- **Lead** — `<p class="lead">`, styled with the serif accent drop-cap
+  (`.lead::first-letter`).
+- **Figure** — a full-width `<figure class="full">`; resolves
+  `essays[essay][slot]` from config and renders the `.essay-shot.photo.<cls>` box
+  + `Caption`.
+- **Pair** — the two-up `<div class="pair">`; resolves two slots
+  (defaults `pairA` / `pairB`) from config, each with its `Caption`.
+- **PullQuote** — `<blockquote class="pull">`, the serif accent left-rule.
+- **Caption** — the mono `<figcaption class="essay-cap">` (accent `#code`
+  badge + caption text); used inside Figure/Pair and exported for direct use.
+
+The figure data resolves from `site.config.essays` by `essay` + `slot`, so the
+manifest stays in config and the MDX only names slots.
+
+**Render (Stage 3 point 3).** `page.tsx` now imports the three `.mdx` bodies into
+an `essayBodies` slug→component map and renders `<Body />` inside
+`article.reading` (the inline config-prose body from Stage 2 is gone); the end
+rule + first-name signature stay structural in the template. The hero still reads
+`config.essays` for eyebrow/title/meta.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds (all three essay routes).
+- Inspected `out/journal/africa.html`: the reading column renders top-to-bottom
+  from the MDX — `.lead` (drop-cap), the full-width `.full` figure
+  (`ph-savanna`), the `.pair` (`ph-crater` + `ph-sea`), the `.pull` quote, then
+  the closing `.full` figure (`ph-savanna`), each figure carrying its accent
+  `#code` caption. Same structure confirmed across the other two essays. The
+  accent-on-drop-cap/rule is the collection hue via the `.acc-<hue>` root
+  (verified in Stage 2 / re-checked live in Stage 5).
+- Registered components: **Lead, Figure, Pair, PullQuote, Caption**.
 
 ---
 

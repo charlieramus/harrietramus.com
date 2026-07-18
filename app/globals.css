@@ -67,7 +67,8 @@ a {
   /* Layout measures. */
   --maxw: 1200px; /* max content width */
   --board: 1100px; /* the Photos board column width (V4) */
-  --read: 68ch; /* essay reading measure (V3) */
+  --read: 68ch; /* narrow reading measure — kept for the About page */
+  --essay-col: min(880px, 92vw); /* unified essay column: text AND figures (V5) */
   --nav-h: 64px; /* sticky header height — the landing pulls up by this */
 
   /* Motion. */
@@ -790,12 +791,15 @@ button:focus-visible {
   letter-spacing: 0.06em;
 }
 
-/* The centred reading column — ~reading measure, generous leading. */
+/* The unified essay column (V5) — one Google-Doc-wide measure that BOTH the
+   reading text and every figure share; centred (margin-inline: auto) so the
+   side whitespace is symmetric. Body bumped to ~19px / 1.75 so the wider measure
+   still reads cleanly. */
 .reading {
-  max-width: var(--read);
+  max-width: var(--essay-col);
   margin: clamp(40px, 8vh, 80px) auto 0;
-  font-size: 18px;
-  line-height: 1.7;
+  font-size: 19px;
+  line-height: 1.75;
   color: var(--ink);
 }
 .reading > p {
@@ -816,12 +820,11 @@ button:focus-visible {
   color: var(--accent);
 }
 
-/* Full-width figure — breaks out wider than the reading measure, centred. */
+/* Full-column figure (V5) — spans the shared column exactly, so the widest image
+   equals the text width. The old margin-left:50% / translateX break-out is gone. */
 .reading .full {
   margin: clamp(32px, 6vh, 64px) auto;
-  width: min(var(--maxw), 92vw);
-  margin-left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
 }
 
 .reading figure {
@@ -845,7 +848,7 @@ button:focus-visible {
   width: 100%;
   padding: 0;
   border: none;
-  border-radius: 4px;
+  border-radius: 2px; /* near-square, editorial (V5) */
   cursor: zoom-in;
   color: inherit;
   transition:

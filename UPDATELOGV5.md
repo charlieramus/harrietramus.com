@@ -81,7 +81,34 @@ measure still reads. Report the resolved --essay-col width in px at a desktop vi
 
 ## Stage 1 Report
 
-_Pending._
+Collapsed the narrow-text / wide-figure split into one unified column. All changes
+in `app/globals.css`:
+
+- **New token.** Added `--essay-col: min(880px, 92vw)` next to `--read`/`--maxw`, and
+  re-annotated `--read` as "narrow reading measure — kept for the About page" (About
+  still uses its own tighter measures; only the essay switched).
+- **`.reading` is now the column.** `max-width` changed from `var(--read)` (68ch) to
+  `var(--essay-col)`; body type bumped `18px → 19px` and leading `1.7 → 1.75` so the
+  wider measure reads cleanly. Still centred via the existing `margin: … auto 0`, so
+  side whitespace stays symmetric; vertical rhythm (`> p { margin-top: 1.4em }`) left
+  as-is.
+- **`.reading .full` break-out removed.** Deleted `width: min(--maxw, 92vw)`,
+  `margin-left: 50%`, and `transform: translateX(-50%)`; it now spans the column with
+  `width: 100%`, keeping its `clamp(32px,6vh,64px) auto` top/bottom margins. The widest
+  image is therefore exactly the text width.
+- **`.pair` untouched** — it already lives inside `.reading`, so once `.reading` is the
+  column the two-up grid is bounded by it; the `max-width: 560px` single-column collapse
+  is intact.
+- **Softer corners.** `.essay-shot` border-radius `4px → 2px` (near-square editorial
+  look); `.full-shot`/`.pair-shot` only set aspect-ratio, so they inherit the 2px. No
+  `Shot`/lightbox class or `slotIndex` touched.
+
+**Verify:** `npx tsc --noEmit` clean; `npm run build` green (all 13 pages, the three
+`/journal/*` essays SSG'd). Both the reading text and every `.full` figure now resolve
+to the same `max-width`. **Resolved `--essay-col` at a desktop viewport:** `min(880px,
+92vw)` = **880px** for any viewport wider than ~957px (below that it tracks 92vw). Text
+column and `.full` figure share that 880px measure, centred with symmetric whitespace,
+and no figure exceeds the text.
 
 ---
 

@@ -293,7 +293,47 @@ open out/index.html locally and click through offline. Report the full exported 
 
 ## Stage 5 Report
 
-_Pending._
+Turned the app into a real, indexable static site, mirroring charlieramus.comv2's SEO surface.
+
+**Files**
+- `app/robots.ts`, `app/sitemap.ts` — both `dynamic = "force-static"` so they export
+  as flat files. Robots allows all + points at the sitemap; the sitemap is built from
+  `SITE_URL` + `collections` (static routes + one entry per essay slug, so new
+  collections are picked up automatically).
+- `app/icon.tsx` (32×32), `app/apple-icon.tsx` (180×180), `app/opengraph-image.tsx`
+  (1200×630) — `next/og` `ImageResponse`, `force-static` (rendered to PNGs at build).
+  All driven by `config.theme` + `config.landing`: the favicon/apple icon are the
+  wordmark monogram on the deep-ink ground with the default-accent underline; the OG
+  card is the serif wordmark + tagline + the accent trio bar (tomato/teal/mustard) on
+  deep ink — no gradients (DESIGN.md). Config-swappable; a dropped-in PNG overrides.
+- `app/layout.tsx` — added `openGraph` (type/siteName/title/description/url/locale),
+  `twitter` (summary_large_image), `applicationName`, and a default `canonical`. The
+  default share card + favicon are inherited by every route from the app-dir files.
+- **Fixed the title double-suffix** flagged in Stage 4: `/photos` now passes the short
+  `"Photos"` and `/journal/*` the short `essay.title`, both taking the layout's
+  `— {wordmark}` template once. Each also sets its own `alternates.canonical` (so the
+  layout's default `/` canonical doesn't bleed onto them) + an `openGraph`
+  title/description/url; essays use `og:type: article`.
+- `next.config.ts` already carries `output: "export"` + `images.unoptimized` (V4-ready
+  from V1) — left as-is.
+
+**Verify** (all green)
+- `npx tsc --noEmit`; `npm run build` exports a complete `out/`.
+- **Full exported route list:** `/` (index.html), `/photos` (photos.html), `/about`
+  (about.html), `/journal/africa`, `/journal/united-states`, `/journal/japan`, plus
+  `404.html`/`_not-found.html`; SEO files `sitemap.xml` (6 URLs) + `robots.txt`; the
+  `icon`, `apple-icon`, `opengraph-image` PNGs; hashed `_next/static/*` assets.
+- **Titles** now single-suffix: `Harriet` / `Photos — Harriet` / `About — Harriet` /
+  `The long grass — Harriet` / `Quiet, then neon — Harriet`.
+- **Head meta** present on home + per-route: `canonical`, `og:title/description/url/
+  site_name/locale/image` (the 1200×630 PNG), `og:image:width/height/alt`,
+  `twitter:card=summary_large_image` + image, `<link rel="icon">` + `apple-touch-icon`.
+  Essays carry their own canonical + `og:type=article`.
+- **No broken references:** grep for empty/undefined `src` across `out/` → none.
+- **Offline click-through:** served `out/` with a static server and fetched every
+  route — `/`, `/photos`, `/about`, `/journal/africa`, `/sitemap.xml`, `/robots.txt`,
+  `/opengraph-image`, `/icon`, and a hashed JS chunk all returned **200**; the home
+  response carries the landing + wall markup. No console errors, no missing images.
 
 ---
 

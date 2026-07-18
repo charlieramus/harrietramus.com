@@ -72,7 +72,20 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { collection } = await params;
   const essay = essays[collection];
-  return { title: essay ? `${essay.title} — ${wordmark}` : "Journal" };
+  if (!essay) return { title: "Journal" };
+  // Short title — the layout template adds the "— Harriet" suffix (no double-suffix).
+  const description = essay.lead;
+  return {
+    title: essay.title,
+    description,
+    alternates: { canonical: `/journal/${collection}` },
+    openGraph: {
+      type: "article",
+      title: `${essay.title} — ${wordmark}`,
+      description,
+      url: `/journal/${collection}`,
+    },
+  };
 }
 
 export default async function EssayPage({

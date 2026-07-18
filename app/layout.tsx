@@ -33,17 +33,33 @@ const jetBrainsMono = JetBrains_Mono({
 });
 
 // Metadata from site.config: title = wordmark, description = the landing tagline.
-// metadataBase resolves relative OG/canonical URLs to absolute. Nav/footer +
-// lightswitch + the pre-paint mode script land in Stages 4–5.
+// metadataBase resolves relative OG/canonical URLs to absolute. The default share
+// card is app/opengraph-image.tsx (inherited by every route); the favicon is
+// app/icon.tsx. Inner routes set a SHORT title (e.g. "Photos") that gets the
+// "— Harriet" suffix for free via the template — never append the wordmark
+// themselves, or it double-suffixes.
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  // Home title = the wordmark; inner routes set a short title that gets the
-  // "— Harriet" suffix for free via the template.
   title: {
     default: wordmark,
     template: `%s — ${wordmark}`,
   },
   description: landing.tagline,
+  applicationName: wordmark,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: wordmark,
+    title: wordmark,
+    description: landing.tagline,
+    url: SITE_URL,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: wordmark,
+    description: landing.tagline,
+  },
 };
 
 export default function RootLayout({

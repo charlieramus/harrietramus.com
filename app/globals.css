@@ -561,6 +561,193 @@ button:focus-visible {
   margin-top: 8px;
 }
 
+/* ------------------------------------------------ essay reading view ------- */
+/* The photo-essay a Place opens into. The page root carries the collection's
+   .acc-<hue>, so every var(--accent) below — the eyebrow, the drop-cap, the
+   pull-quote rule, the caption code, the end rule — is that collection's
+   accent-by-place colour. Prose lives in config now / MDX from Stage 3; the
+   .ph-* figure fills are gradient stand-ins until V4. */
+.essay {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(16px, 4vw, 40px) clamp(16px, 4vw, 40px) clamp(64px, 12vh, 120px);
+}
+
+/* Sharp hero — the .photo primitive (vignette + grain), NOT blurred. */
+.essay-hero {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  min-height: 300px;
+  border-radius: 5px;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+}
+
+.essay-hero-scrim {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.66) 0%,
+    rgba(0, 0, 0, 0.22) 48%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+}
+
+.essay-back {
+  position: absolute;
+  z-index: 5;
+  top: clamp(14px, 3vw, 24px);
+  left: clamp(20px, 4vw, 44px);
+  color: rgba(243, 236, 221, 0.85);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+  transition: color 0.2s var(--ease);
+}
+.essay-back:hover {
+  color: #f3ecdd;
+}
+
+.essay-hero-inner {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  padding: clamp(20px, 4vw, 44px);
+}
+
+.essay-eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  margin-bottom: 14px;
+}
+
+.essay-title {
+  font-size: clamp(38px, 7vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: #f3ecdd;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.4);
+}
+
+.essay-meta {
+  margin-top: 14px;
+  color: rgba(243, 236, 221, 0.82);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+/* The centred reading column — ~reading measure, generous leading. */
+.reading {
+  max-width: var(--read);
+  margin: clamp(40px, 8vh, 80px) auto 0;
+  font-size: 18px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.reading > p {
+  margin-top: 1.4em;
+}
+.reading > p:first-child {
+  margin-top: 0;
+}
+
+/* Lead paragraph — serif drop-cap in the collection accent. */
+.reading .lead::first-letter {
+  float: left;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 3.6em;
+  line-height: 0.72;
+  padding: 8px 12px 0 0;
+  color: var(--accent);
+}
+
+/* Full-width figure — breaks out wider than the reading measure, centred. */
+.reading .full {
+  margin: clamp(32px, 6vh, 64px) auto;
+  width: min(var(--maxw), 92vw);
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+
+.reading figure {
+  margin: 0;
+}
+
+/* Two-up pair — two figures side by side with their own captions. */
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(10px, 2vw, 18px);
+  margin: clamp(28px, 5vh, 52px) 0;
+}
+
+/* The figure box: a .photo (grain + vignette) sized by slot ratio. Real photos
+   drop in here as next/image in V4; the .ph-* gradient stands in for now. */
+.essay-shot {
+  border-radius: 4px;
+  cursor: default; /* Stage 4 makes these zoom-in + clickable */
+}
+.full-shot {
+  aspect-ratio: 16 / 10;
+}
+.pair-shot {
+  aspect-ratio: 4 / 5;
+}
+
+.essay-cap {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  letter-spacing: 0.01em;
+}
+.essay-cap-code {
+  flex: none;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+}
+
+/* Pull quote — serif, with the accent left-rule. */
+.pull {
+  margin: clamp(32px, 6vh, 60px) 0;
+  padding-left: clamp(18px, 3vw, 28px);
+  border-left: 3px solid var(--accent);
+  font-family: var(--font-serif);
+  font-size: clamp(22px, 3.4vw, 30px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* End rule — a short accent bar closing the essay. */
+.end-rule {
+  margin: clamp(40px, 7vh, 72px) auto 0;
+  width: 64px;
+  border: none;
+  border-top: 2px solid var(--accent);
+}
+
+.essay-sign {
+  margin-top: clamp(20px, 3vh, 28px);
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 20px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+  .pair {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ------------------------------------------------ route stubs -------------- */
 /* The V1 placeholder pages (home / photos / about) before their real content
    lands in V2–V4. Kept intentionally quiet. */

@@ -141,7 +141,63 @@ the three routes + their accent hues.
 
 ## Stage 2 Report
 
-_Pending._
+Replaced the V2 essay stub with the real reading template in
+`app/journal/[collection]/page.tsx`, plus an essay block in `globals.css`. Still
+a server component: `generateStaticParams` maps `config.collections` →
+`{ collection: c.essay }` (so exactly the three essay slugs pre-render),
+`generateMetadata` titles the tab `"<title> — Harriet"`, and unknown slugs
+`notFound()`.
+
+**The template.** The page root is `main.essay.acc-<hue>`, where the hue is the
+collection's `accent` (looked up by `essay` slug) — so every `var(--accent)` in
+the essay is that collection's accent-by-place colour. Structure:
+
+- **Sharp hero** — `header.essay-hero.photo.<essay.hero>`: the `.photo` primitive
+  (vignette + grain), explicitly *not* blurred (contrast with the landing
+  backdrop). A bottom `.essay-hero-scrim` carries legibility; over it sit the
+  mono **eyebrow** (in accent), the serif **title**, and the mono **meta**, plus
+  a **back link** `← All collections` → `/` pinned top-left. Hero text is fixed
+  warm-cream (the scrim, not `--ink`, carries contrast) so it reads in both
+  modes.
+- **Reading column** — `article.reading`, capped at `var(--read)` (68ch): the
+  **lead** paragraph (serif drop-cap via `.lead::first-letter`, accent-coloured),
+  a body paragraph, a **full-width figure** that breaks out wider than the text
+  column (`width: min(--maxw, 92vw); margin-left: 50%; translateX(-50%)`), a
+  **two-up `.pair`** (grid, collapses to one column ≤560px), a **pull quote**
+  (`blockquote.pull`, serif, accent left-rule), a second body paragraph, a
+  **closing figure**, the short accent **end rule**, and the first-name
+  signature.
+
+**Figures + captions from config (Stage 2 point 3).** Each figure box is an
+`.essay-shot.photo.<cls>` sized by slot (`--full-shot` 16/10, `.pair-shot` 4/5);
+its `figcaption.essay-cap.mono` shows the accent `#code` badge + the caption,
+all pulled straight from `config.essays` (`full` / `pairA` / `pairB` / `end`).
+The `.ph-*` fills are gradient stand-ins; `.essay-shot` keeps `cursor: default`
+with a note that Stage 4 makes them zoom-in + clickable.
+
+**Prose:** rendered from the `config.essays` strings for now. Per the config's
+own note ("these strings seed [the MDX] … meanwhile"), Stage 3 relocates the
+lead/body/quote prose into `content/essays/*.mdx` and swaps this config-driven
+body for the MDX render — no visual change, but the writing becomes editable
+without touching the component. I chose to render real prose here (rather than
+leave literal empty slots) so every commit is a working, readable site;
+Stage 3 still does its full job (MDX bodies + registered reading-column
+components).
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds; all **three** `journal/[collection]`
+  routes export (`/journal/africa`, `/journal/united-states`, `/journal/japan`).
+- Inspected the built HTML for each — the hero renders the right title/meta and
+  the correct accent-by-place root class on every one:
+  - **africa** → `essay acc-mustard` · "The long grass" · "Serengeti, Tanzania ·
+    September" · eyebrow "Collection · Africa".
+  - **united-states** → `essay acc-teal` · "West, and keep going" · "Moab to Big
+    Sur · June" · eyebrow "Collection · United States".
+  - **japan** → `essay acc-tomato` · "Quiet, then neon" · "Kyoto & Tokyo ·
+    November" · eyebrow "Collection · Japan".
+- Verification here is by reading the built markup, not a browser screenshot (the
+  live both-mode walkthrough is Stage 5).
 
 ---
 

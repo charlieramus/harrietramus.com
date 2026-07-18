@@ -61,7 +61,45 @@ handled. Report the record count + the filename convention.
 
 ## Stage 1 Report
 
-_Pending._
+Built the reproducible image pipeline, mirroring `charlieramus.comv2/scripts/sync-gallery.mjs`
+and narrowing it to Harriet's board contract.
+
+**Files**
+- `scripts/sync-gallery.mjs` (new) — scans `public/photos`, reads each image's
+  intrinsic size with `image-size` (`ratio = round(w/h, 3)`), generates a base64
+  blur with `plaiceholder` (`size: 10`), and writes the typed manifest
+  `data/photos.ts`. No `sharp` downscale/thumb step (the sibling's) — Harriet's
+  board renders one `next/image` per tile with a blur placeholder, so the extra
+  thumbnail tier isn't needed yet; the ratio + blur are what the masonry consumes.
+- `data/photos.ts` (generated) — exports `type Photo = { src, code, loc, ratio, blurDataURL? }`
+  and `const photos: Photo[]`. Committed **empty** (`[]`): Harriet has no photos at
+  build time, and no fabricated frames are written (Context/Decisions + NOW.md).
+- `public/photos/README.md` (new) — keeps the folder tracked and documents the
+  add-photos flow + both labelling conventions.
+
+**Labelling — two ways (spec point 1: "filename or a small sidecar")**
+- **Sidecar (preferred):** `public/photos/gallery.json` = `[{ file, loc?, code? }]`.
+  `loc` → hover caption / lightbox location; `code` optional (sequential `0001…`
+  when omitted); only the listed files, in order.
+- **Filename convention (no sidecar):** every image is picked up alphabetically;
+  `loc` is derived from the stem — drop the extension, `-`→space, `__`→`, `,
+  title-case — so `big-sur__california.webp` → **Big Sur, California**. Codes
+  sequential. Non-image files, `gallery.json`, and `README.md` are skipped.
+
+**Verify** (all green)
+- Exercised on a 3-image sample folder (generated WebPs at 3:2, 2:3, 1:1): wrote
+  `data/photos.ts` with **3 records**, correct ratios (`1.5`, `0.667`, `1`) and
+  **non-empty** `blurDataURL`s (real base64 PNGs). Sidecar-less run derived
+  `Big Sur, California` / `Kyoto, Japan` from the convention as expected.
+- `npx tsc --noEmit` passes on the generated file.
+- **Empty folder handled:** `npm run sync-gallery` on the now-empty `public/photos`
+  emits `export const photos: Photo[] = [];` with no crash. Committed state is the
+  empty manifest + README; the sample images were removed (not committed) so
+  nothing fabricated ships.
+
+Record count on the sample run: **3**. Shipped record count: **0** (empty, honest).
+Filename convention: `<location>.<ext>` with `-`→space and `__`→`, ` (or a
+`gallery.json` sidecar for explicit `loc`/`code`).
 
 ---
 

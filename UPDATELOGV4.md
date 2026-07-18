@@ -359,7 +359,54 @@ final NOW.md build-state table + the deployed URL into this report.
 
 ## Stage 6 Report
 
-_Pending._
+Final coherence pass — proved the whole site, updated `NOW.md`, and prepared launch.
+
+**1. Full clean run (all green)**
+- `npm install` — clean (from `package-lock.json`; only advisory audit notes, no errors).
+- `npm run sync-gallery` — empty `public/photos` → empty `data/photos.ts`, no crash.
+- `npx tsc --noEmit` — passes.
+- `npm run lint` — passes (eslint, exit 0, no findings).
+- `npm run build` — exports a complete `out/` (1.5 MB) with every route: `/`, `/about`,
+  `/photos`, `/journal/{africa,united-states,japan}`, `/icon`, `/apple-icon`,
+  `/opengraph-image`, `/sitemap.xml`, `/robots.txt` + hashed `_next/static/*`.
+
+**2. End-to-end walkthrough (served `out/` offline, both themes)**
+- **Landing** → `landing-title` + `ph-dusk` honest blurred backdrop + scroll cue.
+- **Wall** → three accent hues at once (`acc-mustard` / `acc-teal` / `acc-tomato`).
+- **Essay** (africa) → `reading` column + `essay-shot` figures + `end-rule` + `essay-sign`,
+  page in `acc-mustard`; lightbox wiring present (shared V3 component).
+- **Photos board** → honest "Photos coming soon" empty state (no photos synced).
+- **About** → "About the journal" + first-name `about-sign`.
+- **Lightswitch / themes** → injected tokens carry both the default dark block and the
+  `[data-mode="light"]` block; the `harriet-mode` persist key + pre-paint script are in
+  the `<head>`. (Interactive flip mechanism unchanged from V3, verified live there;
+  here confirmed both-mode tokens + persist key ship in the export.)
+- **No fabricated content:** every photo surface shows its `.ph-*` gradient stand-in and
+  the board shows "coming soon" — correct for a site with no photographs yet.
+
+**3. Launch** — the static `out/` is deploy-ready (`output: 'export'`, offline-served:
+every route + asset returned **200**). **The live deploy was NOT run from this
+environment** — it needs Harriet's host / Vercel credentials (the Vercel connector is
+unauthenticated here), so **no live URL is claimed** (per the honesty rule). To ship:
+`npm run build`, then deploy `out/` — connect the GitHub repo `charlieramus/harrietramus.com`
+in Vercel, or `vercel deploy --prebuilt`, or drop `out/` on any static host (Netlify, etc.).
+
+**4. `NOW.md` updated** — Photos & Pipeline moved to ✅ Functional, "Real vs. locked"
+rewritten to "whole site built and verified", the standing deploy action + the
+add-photos flow documented, and the four-log plan marked all complete.
+
+**Final `NOW.md` build-state table:**
+
+| Area | State | Notes |
+| --- | --- | --- |
+| **Foundation & Config** | ✅ Functional | Next.js 16 static-export app; `site.config.ts` single-source; `theme` → `themeToCss` tokens; dark/light lightswitch (persists, no flash, defaults dark); nav + footer chrome. |
+| **Landing & Journal** | ✅ Functional | Full-screen landing (isolated blurred backdrop) + colour-coded collection wall (`CollectionCard` + `PlaceCard`, three accents at once) → `/journal/[collection]`. |
+| **Essays & Lightbox** | ✅ Functional | Real photo-essays from MDX + `config.essays`, each in its `.acc-<hue>`; the shared accessible fullscreen lightbox (dialog/aria-modal, Escape-restores-focus, ←/→ wraparound, focus-trap, scroll-lock). |
+| **Photos & Pipeline** | ✅ Functional | `sync-gallery` pipeline → generated `data/photos.ts`; the `/photos` masonry board (3→2→1, `next/image` blur-up, shared lightbox, "coming soon" empty state); `.ph-*` → real `next/image` swap by `#code` (`lib/photos.ts`) across landing/cards/essays/lightbox with gradient fallback; About from `config.about` (no surname); full SEO (sitemap, robots, per-route canonical/OG/Twitter, generated favicon + apple-icon + OG card); `output: 'export'` static `out/`. |
+
+**Deployed URL:** _not deployed from this environment_ — deploy `out/` with Harriet's
+host credentials as above. Everything up to and including the static export is
+build-verified and offline-served green.
 
 ---
 

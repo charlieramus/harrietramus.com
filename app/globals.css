@@ -919,6 +919,55 @@ button:focus-visible {
   }
 }
 
+/* ------------------------------------------------ about -------------------- */
+/* The bio page — a quiet, narrow reading column from config.about. Eyebrow +
+   serif title over the paragraphs, closed by the serif signature. The measure is
+   a touch tighter than the essay reading column so it reads as a personal note. */
+.about {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(56px, 11vh, 128px) clamp(20px, 5vw, 48px) clamp(64px, 12vh, 120px);
+}
+
+.about-head {
+  max-width: 60ch;
+  margin-bottom: clamp(28px, 5vh, 44px);
+  padding-bottom: clamp(18px, 3vh, 26px);
+  border-bottom: 1px solid var(--line);
+}
+.about-eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  margin-bottom: 14px;
+}
+.about-title {
+  font-size: clamp(34px, 6vw, 60px);
+  letter-spacing: -0.01em;
+}
+
+.about-body {
+  max-width: 60ch;
+  font-size: 18px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.about-p {
+  margin-top: 1.4em;
+}
+.about-p:first-child {
+  margin-top: 0;
+}
+
+/* The serif sign-off — quieter ink, set off from the last paragraph. */
+.about-sign {
+  margin-top: clamp(28px, 5vh, 44px);
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--ink-soft);
+}
+
 /* ------------------------------------------------ route stubs -------------- */
 /* The V1 placeholder pages (home / photos / about) before their real content
    lands in V2–V4. Kept intentionally quiet. */

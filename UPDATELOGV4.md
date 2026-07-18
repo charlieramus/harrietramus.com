@@ -247,7 +247,32 @@ surname present. Report a grep proving the surname does not appear in the build 
 
 ## Stage 4 Report
 
-_Pending._
+Built the About page from config, replacing the V2 stub.
+
+**Files**
+- `app/about/page.tsx` — renders `config.about`: an eyebrow + serif title
+  (`about.title`) over the paragraphs, closed by the serif `about.sign` ("— Harriet").
+  `title: "About"` takes the layout's `— Harriet` template suffix for free (no
+  double-suffix). Quiet reading measure (~60ch) matching the prototype's About column.
+- `app/globals.css` — added the `.about*` block: a narrow column (60ch head + body),
+  hairline-ruled head with the accent eyebrow, generous body leading, and a serif
+  sign-off in softer ink.
+
+**Verify** (all green)
+- `npx tsc --noEmit`; `npm run build`.
+- `/about` renders the bio (`about-title` "About the journal", the three paragraphs,
+  the "— Harriet" sign) — reads in both themes (it's pure `var(--…)` token consumer,
+  same as every other route).
+- **Surname grep proving no surname in the build output:** `grep -rio "harriet ramus"
+  out/` → **no matches**; a broader `grep -rio "ramus" out/` also returns **nothing**
+  (the domain string isn't even emitted yet — canonical/OG land in Stage 5). The sign
+  is first-name only, honouring the privacy decision.
+
+Note (deferred to Stage 5, the metadata stage): the layout's `%s — {wordmark}` title
+template double-suffixes routes that already append the wordmark themselves — `/photos`
+("Photos — Harriet — Harriet") and `/journal/*` ("… — Harriet — Harriet", a V3
+carry-over). `/about` avoids it here by passing the short `"About"`. I'll normalise
+`/photos` + `/journal/*` to short titles in Stage 5 where per-route metadata is owned.
 
 ---
 

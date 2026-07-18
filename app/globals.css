@@ -517,6 +517,50 @@ button:focus-visible {
   transform: translateX(0);
 }
 
+/* ------------------------------------------------ collection wall ---------- */
+/* The home wall: the intro band + the stacked collections. `#collections` is the
+   scroll-cue target, offset by the nav height so the sticky header doesn't cover
+   the intro when the cue lands here. */
+.wall {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(64px, 12vh, 120px) clamp(16px, 4vw, 40px)
+    clamp(48px, 10vh, 96px);
+  scroll-margin-top: var(--nav-h);
+}
+
+.wall-intro {
+  margin-bottom: clamp(28px, 5vh, 48px);
+  padding-bottom: clamp(18px, 3vh, 26px);
+  border-bottom: 1px solid var(--line);
+}
+
+.wall-eyebrow {
+  color: var(--ink-faint);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 12px;
+}
+
+.wall-title {
+  font-size: clamp(30px, 5vw, 52px);
+  letter-spacing: -0.01em;
+}
+
+.wall-list {
+  display: grid;
+  gap: clamp(48px, 8vh, 88px);
+}
+
+/* One collection = its hero card + the thin place stack beneath. The `.acc-<hue>`
+   class it also carries (from page.tsx) is what tints its stat number + arrows. */
+.place-stack {
+  display: grid;
+  gap: 6px;
+  margin-top: 8px;
+}
+
 /* ------------------------------------------------ route stubs -------------- */
 /* The V1 placeholder pages (home / photos / about) before their real content
    lands in V2–V4. Kept intentionally quiet. */

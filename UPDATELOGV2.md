@@ -224,7 +224,55 @@ route list.
 
 ## Stage 3 Report
 
-_Pending._
+Assembled the journal home page and created the essay route stub, both wired to
+`site.config`.
+
+**`app/page.tsx`.** Renders `<Landing />`, then the intro band, then the wall:
+
+- **Intro band** — `<section id="collections" className="wall">`, which is the
+  scroll anchor the landing cue targets (`scroll-margin-top: var(--nav-h)` so the
+  sticky nav doesn't cover it). It holds a mono eyebrow derived from the data
+  (`{collections.length} collections` → "3 collections") over a serif "The
+  collections" heading with a hairline rule. The only literal is that structural
+  heading (a section label, like the "Collection" eyebrow / the nav labels); the
+  count is real config data.
+- **Wall** — `collections.map(...)` renders, per collection, a
+  `<div className="collection acc-<accent>">` wrapping a `<CollectionCard>` over a
+  `.place-stack` of `<PlaceCard>`s. The `.acc-<hue>` wrapper is what tints each
+  collection's stat number + arrows to its own hue, so all three accents show at
+  once. Every card links to `/journal/<essay>`.
+
+**`app/journal/[collection]/page.tsx`.** A titled stub (the real essay + lightbox
+are V3) so the wall's links resolve in the static export. `generateStaticParams`
+pre-renders one route per `collection.essay` slug (required under `output:
+export`); `generateMetadata` sets the title from `essays[slug].title`. The page
+reads the essay's `eyebrow` + `title` from config, `notFound()`s on an unknown
+slug, and wraps itself in the collection's `.acc-<hue>` class so the accent eyebrow
+reads in the place hue. `params` is awaited (Next 16 async params).
+
+**No hardcoded copy.** All content — titles, stats, place names/meta, essay
+eyebrows/titles — comes from `site.config`; only structural section labels are
+literals.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds; the dynamic essay route pre-renders all
+  three slugs.
+- Inspected the export:
+  - `out/index.html`: the `id="collections" class="wall"` anchor, the "The
+    collections" title, three collection wrappers `collection acc-mustard/-teal/
+    -tomato`, and four `/journal/<essay>` links per collection (slugs `africa`,
+    `united-states`, `japan`) — the landing cue's `href="#collections"` now has a
+    real target, and every card link resolves.
+  - `out/journal/`: `africa.html`, `united-states.html`, `japan.html` all written.
+    `africa.html` shows `<h1>The long grass</h1>`, eyebrow "Collection · Africa",
+    wrapped in `route-stub acc-mustard`.
+  - So the path scroll (landing cue → `#collections` wall) → click a card →
+    `/journal/<essay>` stub is fully wired and resolves. Verification is by reading
+    the built markup, not a browser screenshot.
+
+**Exported route list:** `/` · `/about` · `/photos` · `/journal/[collection]` →
+`/journal/africa`, `/journal/united-states`, `/journal/japan` · `/_not-found`.
 
 ---
 

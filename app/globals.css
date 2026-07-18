@@ -1,8 +1,17 @@
 @import "tailwindcss";
 
-/* V1 Stage 1: CSS reset + base element styles only. The design-token layer
-   (fonts, per-mode colour tokens, grain/photo primitives) lands in Stage 3. */
+/* =============================================================================
+   globals.css — the structural + primitive layer.
 
+   The per-MODE colour tokens (--bg, --ink, --accent, the trio, …) are NOT here:
+   they're generated from site.config's `theme` by lib/theme.ts (themeToCss) and
+   injected as a <style> in app/layout.tsx, so there is one source of truth and
+   no hand-copied hexes. This file holds the pieces that don't change per mode:
+   the CSS reset, structural tokens, base element styles that consume the
+   injected tokens, the accent-remap classes, and the photo/grain primitives.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ reset -- */
 *,
 *::before,
 *::after {
@@ -17,14 +26,6 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-}
-
-body {
-  min-height: 100vh;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  font-family:
-    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 img,
@@ -43,6 +44,61 @@ select {
   font: inherit;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ------------------------------------------------- structural tokens (:root) */
+:root {
+  /* Type roles. --font-display / --font-figure are the next/font variables set
+     on <html> in layout.tsx (Fraunces + JetBrains Mono); the aliases below add
+     the fallbacks and are what components/base styles reference. */
+  --font-serif: var(--font-display), Georgia, "Times New Roman", serif;
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono:
+    var(--font-figure), ui-monospace, "SFMono-Regular", Menlo, Consolas,
+    monospace;
+
+  /* Layout measures. */
+  --maxw: 1200px; /* max content width */
+  --board: 1100px; /* the Photos board column width (V4) */
+  --read: 68ch; /* essay reading measure (V3) */
+
+  /* Motion. */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Film grain — a fractal-noise SVG, laid over photos via .photo::after. Kept
+     as a data URI so there's no network request and it ships in the export. */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
+
+/* ---------------------------------------------------------- base elements -- */
+/* These consume the injected per-mode tokens, so the page repaints when
+   data-mode flips (Stage 4 lightswitch). */
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition:
+    background-color 0.4s var(--ease),
+    color 0.4s var(--ease);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
 p,
 h1,
 h2,
@@ -53,7 +109,138 @@ h6 {
   overflow-wrap: break-word;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* The mono face — figure captions, stat numbers, the lightbox #code badge. */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+/* ------------------------------------------------ accent-by-place remaps ---- */
+/* Wrap a collection/essay in one of these and --accent becomes that trio hue,
+   so its stat number, arrows, and rules pick up the place's colour. */
+.acc-tomato {
+  --accent: var(--c-tomato);
+}
+.acc-teal {
+  --accent: var(--c-teal);
+}
+.acc-mustard {
+  --accent: var(--c-mustard);
+}
+
+/* --------------------------------------------------- the .photo primitive -- */
+/* The frame every photograph (and every .ph-* stand-in) sits in: a vignette on
+   top via ::before, the film grain via ::after, and an optional .scrim child
+   for legible text over a bright image. Real <img>/next/image drop in as the
+   first child in V4; until then a .ph-* gradient background stands in. */
+.photo {
+  position: relative;
+  overflow: hidden;
+  background: var(--bg2);
+  isolation: isolate;
+}
+
+.photo::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(
+    120% 120% at 50% 40%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.32) 100%
+  );
+}
+
+.photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 140px 140px;
+  opacity: 0.12;
+  mix-blend-mode: overlay;
+}
+
+/* A dark, bottom-weighted wash under text laid over a photo. */
+.photo .scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.15) 45%,
+    transparent 80%
+  );
+}
+
+/* ------------------------------------------ .ph-* gradient stand-ins -------- */
+/* Honest placeholders for photos not yet shot/synced. Each fills a .photo with a
+   muted, postcard-toned gradient keyed to its place; every one is swapped for a
+   real next/image in V4. Not decorative page chrome — they only ever stand in
+   for a missing photograph. */
+[class*="ph-"] {
+  background-size: cover;
+  background-position: center;
+}
+
+/* Landing backdrop fallback — the one intentional gradient (DESIGN.md). */
+.ph-dusk {
+  background-image: linear-gradient(160deg, #2b2740 0%, #5a3f52 45%, #b26a4a 100%);
+}
+
+/* Africa */
+.ph-savanna {
+  background-image: linear-gradient(165deg, #caa24a 0%, #a9713a 55%, #5e3d2a 100%);
+}
+.ph-crater {
+  background-image: linear-gradient(160deg, #8a9a6b 0%, #6d7a52 50%, #3f4a33 100%);
+}
+.ph-sea {
+  background-image: linear-gradient(165deg, #4fb3ac 0%, #2f7d84 55%, #1c4a55 100%);
+}
+
+/* United States */
+.ph-canyon {
+  background-image: linear-gradient(160deg, #d1795a 0%, #a94b3c 55%, #5c2a26 100%);
+}
+.ph-coast {
+  background-image: linear-gradient(170deg, #9fb7bd 0%, #5f8390 50%, #2f4c58 100%);
+}
+.ph-granite {
+  background-image: linear-gradient(160deg, #a7a29a 0%, #74706b 55%, #43413e 100%);
+}
+
+/* Japan */
+.ph-kyoto {
+  background-image: linear-gradient(165deg, #7a8a63 0%, #4f5f45 50%, #2a3327 100%);
+}
+.ph-neon {
+  background-image: linear-gradient(160deg, #3a3550 0%, #6b3560 50%, #b03a54 100%);
+}
+.ph-fuji {
+  background-image: linear-gradient(170deg, #a9c1d6 0%, #6d86a3 50%, #3a3f5c 100%);
+}
+
+/* ------------------------------------------------ reduced-motion honour ---- */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

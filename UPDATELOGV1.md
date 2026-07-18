@@ -215,7 +215,49 @@ serif/mono load. Report which serif + mono you chose.
 
 ## Stage 3 Report
 
-_Pending._
+Built the design-token layer, the photo/grain primitives, and the fonts — all
+generated from `site.config`'s `theme`, no hand-copied hexes.
+
+**`lib/theme.ts` — `themeToCss(theme)`:** the one place the palette becomes CSS.
+Emits the two per-mode blocks `[data-mode="dark"]{…}` and `[data-mode="light"]{…}`,
+each defining the full token contract: `--bg --bg2 --ink --ink-soft --ink-faint
+--accent --accent-ink --c-tomato --c-teal --c-mustard --line --nav-bg --plate`.
+Dark reads the bright `postcard` trio, light reads the deepened `accentLight`
+trio; `--accent` defaults to `theme.defaultAccent` (tomato) per mode.
+
+**`app/layout.tsx`:** injects `themeToCss(theme)` once via a `<style>` in `<head>`
+(single source of truth) and wires the fonts via `next/font/google` — **Fraunces**
+(display serif, `--font-display`) and **JetBrains Mono** (`--font-figure`), set as
+variables on `<html>`. Body stays on the system-sans stack per the type decision.
+Metadata now comes from config (`title` = `wordmark`, `description` =
+`landing.tagline`, `metadataBase`). `data-mode="dark"` is the default until the
+Stage 4 lightswitch takes over.
+
+**`app/globals.css`:** structural `:root` tokens — `--font-serif/-sans/-mono`
+aliases (with fallbacks), `--maxw` (1200px), `--board` (1100px), `--read` (68ch),
+`--ease`, and the `--grain` fractal-noise SVG data URI. Base elements consume the
+injected tokens (body `background:var(--bg)`/`color:var(--ink)` with a mode
+transition; serif headings; `.mono` tabular figures; accent focus rings). Added
+the `.acc-tomato/.acc-teal/.acc-mustard` remap classes, the `.photo` primitive
+(`::before` vignette, `::after` grain overlay, `.scrim` child), and all ten
+`.ph-*` gradient stand-ins used by the config (`ph-dusk` landing fallback +
+savanna/crater/sea/canyon/coast/granite/kyoto/neon/fuji), kept as honest
+placeholders. Reduced-motion is honoured globally.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds.
+- Rendered a scratch `theme-check` swatch page and inspected the export: the
+  injected `<style>` carries both blocks with correct hexes — dark `--accent:
+  #d1495b`, light `--accent: #b23a4b`; the full trio (`#d1495b/#3bb3a3/#e9b64a`
+  dark, `#b23a4b/#2b8677/#c8912f` light) resolves; `--font-display` +
+  `--font-figure` are defined in the built CSS with Fraunces + JetBrains Mono,
+  and nine `.woff2` files ship. `.acc-teal` correctly remaps `--accent` to teal.
+- Scratch page deleted; clean rebuild exports only `/` and `/_not-found`.
+
+**Chosen faces:** display serif **Fraunces** (high-contrast editorial old-style,
+fits the vintage-postcard character); mono **JetBrains Mono** (figures / stat
+numbers / lightbox `#code`).
 
 ---
 

@@ -102,19 +102,26 @@ export default async function EssayPage({
 
   return (
     <main className={accent ? `essay acc-${accent}` : "essay"}>
-      {/* Sharp hero (not blurred like the landing) — the .photo primitive over
-          the essay's gradient stand-in, with a bottom scrim for legibility. */}
-      <header className={`essay-hero photo ${essay.hero}`}>
-        <span className="scrim essay-hero-scrim" />
-        <Link href="/" className="essay-back">
+      {/* NYT-style text masthead (V5), rendered INSIDE the column (not over a
+          photo): a back kicker, the accent eyebrow, the serif headline as text,
+          a quiet mono byline, and a hairline divider. */}
+      <header className="essay-masthead">
+        <Link href="/" className="essay-kicker">
           ← All collections
         </Link>
-        <div className="essay-hero-inner">
-          <p className="essay-eyebrow mono">{essay.eyebrow}</p>
-          <h1 className="essay-title">{essay.title}</h1>
-          <p className="essay-meta mono">{essay.meta}</p>
-        </div>
+        <p className="essay-eyebrow mono">{essay.eyebrow}</p>
+        <h1 className="essay-headline">{essay.title}</h1>
+        <p className="essay-byline mono">{essay.meta}</p>
+        <hr className="essay-rule" />
       </header>
+
+      {/* The former hero photo as the lead image, at column width. Reuses the
+          .full figure box (.photo grain/vignette + full-shot crop). The essay
+          hero carries no #code, so it stays its gradient stand-in; it is not part
+          of the lightbox item set, so it stays non-clickable. */}
+      <figure className="essay-lead">
+        <div className={`photo full-shot essay-lead-shot ${essay.hero}`} />
+      </figure>
 
       {/* Reading column. The prose + figures come from the collection's MDX
           body (content/essays/*.mdx) via the reading-column components in

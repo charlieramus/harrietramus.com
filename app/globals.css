@@ -726,69 +726,72 @@ button:focus-visible {
   padding: clamp(16px, 4vw, 40px) clamp(16px, 4vw, 40px) clamp(64px, 12vh, 120px);
 }
 
-/* Sharp hero — the .photo primitive (vignette + grain), NOT blurred. */
-.essay-hero {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  min-height: 300px;
-  border-radius: 5px;
-  display: flex;
-  align-items: flex-end;
-  isolation: isolate;
+/* NYT-style text masthead (V5) — sits INSIDE the column (var(--essay-col)),
+   centred with the reading text. No photo overlay: the headline is TEXT, so the
+   accent shows only in the small eyebrow, not a title-over-image treatment. */
+.essay-masthead {
+  max-width: var(--essay-col);
+  margin: 0 auto;
+  padding-top: clamp(24px, 6vh, 64px);
 }
 
-.essay-hero-scrim {
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.66) 0%,
-    rgba(0, 0, 0, 0.22) 48%,
-    rgba(0, 0, 0, 0.1) 100%
-  );
-}
-
-.essay-back {
-  position: absolute;
-  z-index: 5;
-  top: clamp(14px, 3vw, 24px);
-  left: clamp(20px, 4vw, 44px);
-  color: rgba(243, 236, 221, 0.85);
+/* Back kicker — quiet, above the eyebrow (replaces the old over-photo back link). */
+.essay-kicker {
+  display: inline-block;
+  margin-bottom: clamp(20px, 4vh, 36px);
+  color: var(--ink-faint);
   font-size: 13px;
   letter-spacing: 0.03em;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
   transition: color 0.2s var(--ease);
 }
-.essay-back:hover {
-  color: #f3ecdd;
+.essay-kicker:hover {
+  color: var(--ink);
 }
 
-.essay-hero-inner {
-  position: relative;
-  z-index: 5;
-  width: 100%;
-  padding: clamp(20px, 4vw, 44px);
-}
-
+/* Small accent eyebrow (mono, small-caps) — one of the few quiet places the
+   collection accent now shows. */
 .essay-eyebrow {
   color: var(--accent);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
 }
 
-.essay-title {
-  font-size: clamp(38px, 7vw, 92px);
-  line-height: 0.98;
+/* The serif headline as TEXT (not overlaid on a photo) — ink colour, reads in
+   both themes. */
+.essay-headline {
+  font-size: clamp(38px, 6vw, 72px);
+  line-height: 1.02;
   letter-spacing: -0.02em;
-  color: #f3ecdd;
-  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.4);
+  color: var(--ink);
 }
 
-.essay-meta {
-  margin-top: 14px;
-  color: rgba(243, 236, 221, 0.82);
+/* Quiet mono byline / meta line under the headline. */
+.essay-byline {
+  margin-top: 18px;
+  color: var(--ink-soft);
   font-size: 13px;
   letter-spacing: 0.06em;
+}
+
+/* Hairline divider closing the masthead. */
+.essay-rule {
+  margin-top: clamp(20px, 4vh, 32px);
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+/* The lead image — the former hero photo, now at column width below the
+   masthead. Reuses the .full figure box (.photo grain/vignette + 16/10 crop);
+   the essay hero has no #code, so it stays its gradient stand-in. Near-square
+   corners like the other figures; not clickable (not part of the lightbox set). */
+.essay-lead {
+  max-width: var(--essay-col);
+  margin: clamp(28px, 5vh, 48px) auto 0;
+}
+.essay-lead-shot {
+  border-radius: 2px;
 }
 
 /* The unified essay column (V5) — one Google-Doc-wide measure that BOTH the
@@ -809,15 +812,11 @@ button:focus-visible {
   margin-top: 0;
 }
 
-/* Lead paragraph — serif drop-cap in the collection accent. */
-.reading .lead::first-letter {
-  float: left;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: 3.6em;
-  line-height: 0.72;
-  padding: 8px 12px 0 0;
-  color: var(--accent);
+/* Lead paragraph (V5) — no drop-cap; a clean opening paragraph, set a touch
+   larger than the body so it still opens the piece. */
+.reading .lead {
+  font-size: 1.08em;
+  line-height: 1.65;
 }
 
 /* Full-column figure (V5) — spans the shared column exactly, so the widest image
@@ -888,14 +887,18 @@ button:focus-visible {
   letter-spacing: 0.1em;
 }
 
-/* Pull quote — serif, with the accent left-rule. */
+/* Pull quote (V5) — a centred serif quote with generous margins and a thin
+   hairline above/below, instead of the old heavy accent left-rule. */
 .pull {
-  margin: clamp(32px, 6vh, 60px) 0;
-  padding-left: clamp(18px, 3vw, 28px);
-  border-left: 3px solid var(--accent);
+  margin: clamp(40px, 7vh, 76px) auto;
+  max-width: 32ch;
+  padding: clamp(22px, 3.5vh, 34px) 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
   font-family: var(--font-serif);
-  font-size: clamp(22px, 3.4vw, 30px);
-  line-height: 1.3;
+  font-size: clamp(22px, 3.2vw, 30px);
+  line-height: 1.35;
   letter-spacing: -0.01em;
   color: var(--ink);
 }

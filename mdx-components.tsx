@@ -33,12 +33,14 @@ function Caption({ code, cap }: { code: string; cap: string }) {
   );
 }
 
-/** Opening paragraph — rendered with the serif, accent drop-cap. */
+/** Opening paragraph — a clean lead, set a touch larger than the body (V5
+    removed the drop-cap). */
 function Lead({ children }: { children?: ReactNode }) {
   return <p className="lead">{children}</p>;
 }
 
-/** Pull quote — serif, with the collection's accent left-rule. */
+/** Pull quote — a centred serif quote with hairlines above/below (V5 dropped the
+    heavy accent left-rule). */
 function PullQuote({ children }: { children?: ReactNode }) {
   return <blockquote className="pull">{children}</blockquote>;
 }

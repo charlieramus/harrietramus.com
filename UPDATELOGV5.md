@@ -142,7 +142,68 @@ lightbox. Confirm it reads well in BOTH themes. Report the before/after of the h
 
 ## Stage 2 Report
 
-_Pending._
+Turned the photo-overlay hero into a clean text masthead and stripped the vintage
+flourishes.
+
+**`app/journal/[collection]/page.tsx` — hero markup before → after:**
+
+_Before_ (title over a photo):
+```jsx
+<header className={`essay-hero photo ${essay.hero}`}>
+  <span className="scrim essay-hero-scrim" />
+  <Link href="/" className="essay-back">← All collections</Link>
+  <div className="essay-hero-inner">
+    <p className="essay-eyebrow mono">{essay.eyebrow}</p>
+    <h1 className="essay-title">{essay.title}</h1>
+    <p className="essay-meta mono">{essay.meta}</p>
+  </div>
+</header>
+```
+
+_After_ (text masthead inside the column, then the photo as the lead image):
+```jsx
+<header className="essay-masthead">
+  <Link href="/" className="essay-kicker">← All collections</Link>
+  <p className="essay-eyebrow mono">{essay.eyebrow}</p>
+  <h1 className="essay-headline">{essay.title}</h1>
+  <p className="essay-byline mono">{essay.meta}</p>
+  <hr className="essay-rule" />
+</header>
+<figure className="essay-lead">
+  <div className={`photo full-shot essay-lead-shot ${essay.hero}`} />
+</figure>
+```
+
+The `.acc-<hue>` class stays on `<main>`; the `EssayLightbox` wrapper and the essay's
+lightbox item set are untouched — the lead image is a plain `.photo` box (the essay
+hero has no `#code`, so it keeps its gradient stand-in) and is deliberately **not** a
+clickable `Shot`, so the item set stays `[full, pairA, pairB, end]`.
+
+**`app/globals.css`:**
+- Removed `.essay-hero`, `.essay-hero-scrim`, `.essay-back`, `.essay-hero-inner`,
+  `.essay-title`, and `.essay-meta` (the over-photo overlay styles).
+- Added `.essay-masthead` (max-width `var(--essay-col)`, centred), `.essay-kicker`
+  (quiet back link), a restyled `.essay-eyebrow` (accent, mono, small-caps),
+  `.essay-headline` (serif, `var(--ink)`, text — no shadow/overlay), `.essay-byline`
+  (quiet mono meta), `.essay-rule` (hairline `var(--line)`), plus `.essay-lead` /
+  `.essay-lead-shot` for the column-width lead image (2px corners).
+- **Drop-cap removed:** deleted `.reading .lead::first-letter`; `.reading .lead` is now
+  a clean paragraph set at `1.08em`.
+- **Pull quote restyled:** `.pull` lost the `border-left: 3px solid var(--accent)` and
+  is now a centred serif quote (`max-width: 32ch`, `text-align: center`) with a thin
+  `1px var(--line)` hairline above and below.
+
+**`mdx-components.tsx`:** updated the `Lead` and `PullQuote` JSDoc to the V5 behaviour
+(clean lead / centred hairline quote); no markup change needed (the CSS carries it).
+
+**Verify:** `npx tsc --noEmit` clean; `npm run build` green. Grepping the built
+`out/journal/africa.html` confirms `essay-masthead` / `essay-headline` / `essay-kicker`
+/ `essay-byline` / `essay-lead` are present and `essay-hero` / `essay-title` /
+`lead::first-letter` are gone. The headline is text at the top of the column, the lead
+image sits at column width below it, there is no drop-cap, and the pull quote is centred
+— colour comes from the accent eyebrow / caption `#code` / hairline only. All figures
+still render `Shot` buttons (lightbox intact). The masthead/headline/byline use
+`var(--ink)` / `var(--ink-soft)` / `var(--line)`, so they read correctly in both themes.
 
 ---
 

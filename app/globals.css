@@ -235,6 +235,121 @@ button:focus-visible {
   background-image: linear-gradient(170deg, #a9c1d6 0%, #6d86a3 50%, #3a3f5c 100%);
 }
 
+/* ------------------------------------------------ route stubs -------------- */
+/* The V1 placeholder pages (home / photos / about) before their real content
+   lands in V2–V4. Kept intentionally quiet. */
+.route-stub {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: clamp(64px, 12vh, 140px) clamp(16px, 4vw, 40px);
+}
+.route-stub .eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 14px;
+}
+.route-stub h1 {
+  font-size: clamp(38px, 7vw, 68px);
+}
+.route-stub .stub-note {
+  margin-top: 18px;
+  color: var(--ink-faint);
+  max-width: var(--read);
+}
+
+/* ------------------------------------------------ site chrome -------------- */
+/* Sticky translucent nav. var(--nav-bg) is the per-mode translucent ground; the
+   blur is what makes content read through it. */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--nav-bg);
+  backdrop-filter: saturate(1.4) blur(12px);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 14px clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.nav-wordmark {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.nav-links {
+  display: flex;
+  gap: clamp(14px, 3vw, 30px);
+  list-style: none;
+}
+
+.nav-link {
+  position: relative;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  color: var(--ink-soft);
+  padding-bottom: 3px;
+  transition: color 0.2s var(--ease);
+}
+
+.nav-link:hover {
+  color: var(--ink);
+}
+
+/* Active link: full-ink text + an accent underline. */
+.nav-link[data-active="true"] {
+  color: var(--ink);
+}
+.nav-link[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* The quiet footer. */
+.site-footer {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 48px clamp(16px, 4vw, 40px) 40px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  color: var(--ink-faint);
+  font-size: 14px;
+}
+
+.footer-mark {
+  font-family: var(--font-serif);
+  color: var(--ink-soft);
+}
+
+/* Let the page grow and pin the footer down on short pages. */
+.page-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.page-shell > main {
+  flex: 1 0 auto;
+}
+
 /* ------------------------------------------------ lightswitch -------------- */
 /* A fixed bottom-right wall-switch: a raised plate holding a rocker that slides
    up (light on) or down (dark). Purely a var(--…) consumer, so it recolours with

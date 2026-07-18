@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Fraunces, JetBrains_Mono } from "next/font/google";
-import { theme, wordmark, landing } from "@/site.config";
+import { SITE_URL, theme, wordmark, landing } from "@/site.config";
 import { themeToCss } from "@/lib/theme";
 import Lightswitch from "@/components/lightswitch";
+import SiteHeader from "@/components/site-header";
+import SiteFooter from "@/components/site-footer";
 import "./globals.css";
 
 // Runs before first paint (blocking, in <head>): reads the stored mode and sets
@@ -34,8 +36,13 @@ const jetBrainsMono = JetBrains_Mono({
 // metadataBase resolves relative OG/canonical URLs to absolute. Nav/footer +
 // lightswitch + the pre-paint mode script land in Stages 4–5.
 export const metadata: Metadata = {
-  metadataBase: new URL("https://harrietramus.com"),
-  title: wordmark,
+  metadataBase: new URL(SITE_URL),
+  // Home title = the wordmark; inner routes set a short title that gets the
+  // "— Harriet" suffix for free via the template.
+  title: {
+    default: wordmark,
+    template: `%s — ${wordmark}`,
+  },
   description: landing.tagline,
 };
 
@@ -58,7 +65,11 @@ export default function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: themeToCss(theme) }} />
       </head>
       <body>
-        {children}
+        <div className="page-shell">
+          <SiteHeader />
+          {children}
+          <SiteFooter />
+        </div>
         <Lightswitch />
       </body>
     </html>

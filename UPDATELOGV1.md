@@ -344,7 +344,50 @@ route list from out/.
 
 ## Stage 5 Report
 
-_Pending._
+Built the shared chrome that wraps every page and the route stubs the nav links
+resolve to.
+
+**`app/layout.tsx`:** now the full shell — `<html data-mode>` + the pre-paint
+mode script + the injected theme `<style>` + the `next/font` variables (all from
+earlier stages), and it wraps `{children}` in a `.page-shell` flex column with
+`<SiteHeader />` above and `<SiteFooter />` below (the `<Lightswitch />` sits
+outside as a fixed element). Metadata now uses a title template:
+`title: { default: wordmark, template: "%s — Harriet" }`, `description =
+landing.tagline`, `metadataBase = SITE_URL` — so the home title is `Harriet` and
+inner routes get the suffix for free.
+
+**`components/site-header.tsx` (`"use client"`):** sticky translucent nav
+(`var(--nav-bg)` + `backdrop-filter` blur, hairline bottom border). The
+`"Harriet."` wordmark links home; Journal / Photos / About are Next `<Link>`s.
+Active state comes from `usePathname` — Journal matches `/` (and any `/journal/*`
+for V2+), the others match their prefix — rendered as `data-active` + an accent
+underline + `aria-current="page"`.
+
+**`components/site-footer.tsx`:** the quiet footer — `Harriet · A journal of
+places`, reading the wordmark from config.
+
+**Route stubs:** `app/page.tsx` (home), `app/photos/page.tsx`,
+`app/about/page.tsx` — each a titled placeholder (`.route-stub`) with its own
+metadata title, so the nav links all resolve in the static export. Real content
+lands in V2–V4.
+
+**Verify:**
+- `npx tsc --noEmit` → passes.
+- `npm run build` → static export succeeds.
+- Exported route list (`out/`): `/` (`index.html`), `/about` (`about.html`),
+  `/photos` (`photos.html`), plus `/_not-found` + `404.html`.
+- Drove the served export in a headless browser: the nav + footer render on
+  every page; the home marks **Journal** active, `/photos` marks **Photos**,
+  `/about` marks **About**; clicking a nav `<Link>` routes client-side (pathname
+  + `document.title` update to e.g. `Photos — Harriet` without a full document
+  reload); the footer reads `Harriet · A journal of places` throughout.
+- Console note: the RSC **prefetch** requests for subroutes
+  (`/about/__next.about.__PAGE__.txt`, `/photos/…`) 404. This is inherent Next 16
+  `output: export` behavior — the exported payload is `__next.<route>.txt`, with
+  no `__PAGE__` variant for subroutes — and it's **identical in the sibling
+  `charlieramus.comv2` build** (the architectural source of truth). It's a failed
+  prefetch, not a failed navigation: actual routing works, as verified above. Not
+  a regression introduced here.
 
 ---
 

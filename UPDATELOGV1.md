@@ -143,7 +143,48 @@ prove the config resolves. Report the exported type names.
 
 ## Stage 2 Report
 
-_Pending._
+Created `site.config.ts` at the repo root — the single source of truth, with the
+"THE ONLY FILE YOU EDIT" banner + `CUSTOMIZE:` notes in the `charlieramus.comv2`
+voice, zero JSX, strict types (no `any`). No standalone prototype file exists on
+disk, so the copy/palette were authored to the V1 **Decisions** + this stage's
+spec, and the field shapes were checked against what V2–V4 consume (grepped the
+later logs) so the config feeds them without rework.
+
+**Exported values + their types:**
+- `SITE_URL` (`"https://harrietramus.com"`) and `wordmark` (`"Harriet"`, first
+  name only — the privacy decision; every downstream signature reuses it).
+- `theme: Theme` — interfaces `Trio` (tomato/teal/mustard), `Grounds`
+  (bg/bg2/ink/inkSoft/inkFaint/accentInk/line/navBg/plate), `Theme`
+  (`active: "postcard"`, `defaultAccent`, `palettes.postcard` bright trio,
+  `palettes.accentLight` deepened trio, `palettes.presets` teal/clay/slate/plum/
+  mono shelf, `dark` + `light` grounds). Ships the postcard palette: cream
+  `#f3ecdd` / deep-ink `#201d16` grounds; trio tomato `#d1495b` / teal `#3bb3a3`
+  / mustard `#e9b64a` (deepened `#b23a4b` / `#2b8677` / `#c8912f` for light).
+  Stage 3's `themeToCss` reads this object — no hand-copied hexes.
+- `landing: Landing` — eyebrow/title/tagline/subline/backdrop/backdropImage/
+  backdropBlur/cue (`title` = wordmark; `tagline` doubles as the meta desc;
+  `backdropImage: ""` → the `ph-dusk` gradient stands in until V4).
+- `collections: Collection[]` — interfaces `Place` (name/cls/meta) and
+  `Collection` (name/hero/stat/essay/accent/places). Three trips with the agreed
+  accent-by-place mapping: **Africa → mustard, United States → teal, Japan →
+  tomato**. `essay` is the `/journal/[essay]` slug + the key into `essays`.
+- `essays: Record<string, Essay>` — interfaces `Figure` (cls/cap/code) and
+  `Essay` (hero/eyebrow/title/meta + lead/p1/quote/p2 prose + full/pairA/pairB/
+  end figures). Three essays keyed `africa` / `united-states` / `japan`.
+- `photos: Photo[]` — interface `Photo` (cls/loc/code/ratio); nine pre-pipeline
+  board frames (replaced by generated `data/photos.ts` in V4).
+- `about: About` — interface `About` (title/paragraphs/sign), sign `"— Harriet"`,
+  no surname.
+
+**Verify:**
+- `npx tsc --noEmit` → passes with strict types, no `any`.
+- Imported `wordmark` + `collections` into `app/page.tsx` and rendered the
+  wordmark + a `<ul>` of collection names.
+- `npm run build` → static export succeeds; `out/index.html` contains
+  `Harriet`, `Africa`, `United States`, `Japan` — the config resolves end to end.
+
+**Exported type names:** `Trio`, `Grounds`, `Theme`, `Landing`, `Place`,
+`Collection`, `Figure`, `Essay`, `Photo`, `About`.
 
 ---
 

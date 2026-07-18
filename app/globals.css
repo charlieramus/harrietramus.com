@@ -561,6 +561,154 @@ button:focus-visible {
   margin-top: 8px;
 }
 
+/* ------------------------------------------------ photos board ------------- */
+/* The loose masonry at /photos (V4). A quiet head over a CSS-columns wall of
+   next/image tiles — each sized by its intrinsic ratio so nothing crops, with a
+   blur-up placeholder and a hover location caption. --board caps the width with
+   real side whitespace; the columns step 3 → 2 → 1 down the breakpoints. */
+.board {
+  max-width: var(--board);
+  margin: 0 auto;
+  padding: clamp(48px, 9vh, 96px) clamp(20px, 5vw, 48px) clamp(64px, 12vh, 120px);
+}
+
+.board-head {
+  margin-bottom: clamp(28px, 5vh, 48px);
+  padding-bottom: clamp(18px, 3vh, 26px);
+  border-bottom: 1px solid var(--line);
+}
+.board-eyebrow {
+  color: var(--ink-faint);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 12px;
+}
+.board-title {
+  font-size: clamp(34px, 6vw, 64px);
+  letter-spacing: -0.01em;
+}
+.board-lede {
+  margin-top: 14px;
+  max-width: 46ch;
+  color: var(--ink-soft);
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.6;
+}
+
+/* CSS-columns masonry: tiles flow top-to-bottom, filling each column, and never
+   split across one (break-inside). Three columns on desktop. */
+.board-grid {
+  column-count: 3;
+  column-gap: clamp(10px, 1.6vw, 18px);
+}
+@media (max-width: 900px) {
+  .board-grid {
+    column-count: 2;
+  }
+}
+@media (max-width: 560px) {
+  .board-grid {
+    column-count: 1;
+  }
+}
+
+/* One tile = a zoom-in button (opens the lightbox) wrapping a ratio-boxed photo.
+   Reset the button chrome; the bottom margin is the vertical masonry gutter. */
+.board-tile {
+  display: block;
+  width: 100%;
+  margin: 0 0 clamp(10px, 1.6vw, 18px);
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: zoom-in;
+  -webkit-column-break-inside: avoid;
+  break-inside: avoid;
+}
+
+/* The frame is a .photo (vignette + grain) sized by the item ratio (--r, inline),
+   so next/image fill can cover it without cropping. */
+.board-frame {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--r, 1.5);
+  border-radius: 4px;
+  transition:
+    transform 0.4s var(--ease),
+    box-shadow 0.4s var(--ease);
+}
+.board-img {
+  object-fit: cover;
+}
+/* The same editorial lift as the collection/essay cards — no glow, no zoom. */
+.board-tile:hover .board-frame {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.26);
+}
+
+/* Hover-only bottom wash so the location caption reads over a bright frame. Sits
+   above the grain/vignette (z 2–3), below the caption (z 6). */
+.board-cap-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.58) 0%,
+    transparent 55%
+  );
+  transition: opacity 0.25s var(--ease);
+}
+.board-cap {
+  position: absolute;
+  z-index: 6;
+  left: clamp(10px, 1.4vw, 14px);
+  bottom: clamp(9px, 1.2vw, 12px);
+  color: #f3ecdd;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity 0.25s var(--ease),
+    transform 0.25s var(--ease);
+}
+.board-tile:hover .board-cap-scrim,
+.board-tile:focus-visible .board-cap-scrim {
+  opacity: 1;
+}
+.board-tile:hover .board-cap,
+.board-tile:focus-visible .board-cap {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Honest empty state — shown until real photos are synced in. Quiet, centred, no
+   broken grid. */
+.board-empty {
+  max-width: var(--read);
+  margin: clamp(48px, 12vh, 120px) auto;
+  text-align: center;
+}
+.board-empty-title {
+  color: var(--accent);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  margin-bottom: 14px;
+}
+.board-empty-note {
+  color: var(--ink-faint);
+  font-size: clamp(15px, 1.8vw, 17px);
+  line-height: 1.6;
+}
+
 /* ------------------------------------------------ essay reading view ------- */
 /* The photo-essay a Place opens into. The page root carries the collection's
    .acc-<hue>, so every var(--accent) below — the eyebrow, the drop-cap, the

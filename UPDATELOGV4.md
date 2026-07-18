@@ -123,7 +123,41 @@ the empty state holds. Report the responsive column counts.
 
 ## Stage 2 Report
 
-_Pending._
+Built the loose masonry board at `/photos` over `data/photos.ts`, replacing the V2 stub.
+
+**Files**
+- `app/photos/page.tsx` — server component: the board head (eyebrow "Unfiled" +
+  serif "Photos" + a lede) then hands `photos` from `data/photos.ts` to the client
+  board. Real `<title>`/description metadata from `wordmark`.
+- `components/photos-board.tsx` (new) — the client half. Owns the open index and
+  renders the shared V3 `<Lightbox>` over the **whole** board set (mapped 1:1 to
+  `LightboxItem`s carrying `src`/`blurDataURL`/`loc`/`code`/`ratio`), so a tile's
+  index opens the matching frame and ← / → cross every photo with wraparound.
+  Tiles are `next/image` (`fill`, `placeholder="blur"` when a `blurDataURL` exists,
+  `sizes` matched to the 3/2/1 columns) inside a ratio-boxed `.photo` frame, with a
+  hover-only scrim + location caption. Empty manifest → an honest "photos coming
+  soon" block, not a broken grid.
+- `app/globals.css` — added the `.board*` block: `.board` capped at the existing
+  `--board` (1100px) token with real side whitespace; `.board-grid` a CSS-columns
+  masonry (`break-inside: avoid`); the tile lift matches the collection/essay
+  cards; plus the hover caption + empty-state styles.
+
+**Responsive column counts:** **3** columns default (desktop), **2** at
+`max-width: 900px`, **1** at `max-width: 560px` — via `column-count` on `.board-grid`.
+
+**Verify** (all green)
+- `npx tsc --noEmit` passes; `npm run build` exports `/photos`.
+- Exercised the masonry with a 3-image sample sync: the export rendered `board-grid`
+  + 3 `board-tile`s of `next/image` with real side whitespace and the varied
+  intrinsic ratios (3:2, 2:3, 1:1), hover captions ("Big Sur, California",
+  "Kyoto, Japan") present. Lightbox wiring reuses the V3 controlled component
+  (open index + onClose/onIndex over the full set) — the same pattern verified live
+  in V3; the tile buttons open it and arrows walk the whole board. (The lightbox's
+  own `<Image>` swap for these real frames is Stage 3's explicit handoff; it renders
+  the shared viewer + caption/#code + arrows now.)
+- **Empty state holds:** shipped `data/photos.ts` is empty, and `out/photos.html`
+  renders the "Photos coming soon" block — no broken grid. Sample images were
+  removed after verifying (nothing fabricated ships).
 
 ---
 

@@ -5,23 +5,19 @@ import { Shot } from "@/components/essay-lightbox";
 import { photoByCode } from "@/lib/photos";
 
 // Reading-column components for the essay MDX bodies (content/essays/*.mdx).
-// Prose lives in the MDX; the FIGURE MANIFEST (which .ph-* / #code each slot
-// uses) stays in site.config.essays — so a body only references a figure by its
-// essay slug + slot name and the data is resolved here from config. That keeps
-// the writing editable without touching components and the manifest in one
-// place. @next/mdx (App Router) picks these up via useMDXComponents below, so
-// the bodies render <Lead>, <Figure>, <Pair>, <PullQuote>, <Caption> as these.
+// Prose lives in the MDX; the FIGURE MANIFEST (which .ph-* / #code each figure
+// uses) stays in site.config.essays as an ordered `figures` list — so a body
+// only references a figure by its essay slug + its position `n` and the data is
+// resolved here from config. That keeps the writing editable without touching
+// components and the manifest in one place. @next/mdx (App Router) picks these
+// up via useMDXComponents below, so the bodies render <Lead>, <Figure>, <Pair>,
+// <PullQuote>, <Caption> as these.
 //
-// The figure boxes are static .ph-* stand-ins now; Stage 4 makes them open the
-// shared lightbox, and V4 swaps the gradient div for next/image.
-
-type Slot = "full" | "pairA" | "pairB" | "end";
-
-// The essay's lightbox item set is ordered [full, pairA, pairB, end]; a figure's
-// slot maps to its index in that set, so clicking it opens the lightbox there and
-// ← / → step through the essay's own figures. Kept in sync with the items array
-// built in app/journal/[collection]/page.tsx.
-const slotIndex: Record<Slot, number> = { full: 0, pairA: 1, pairB: 2, end: 3 };
+// V6: figures are an ordered list of any length. A figure's `n` IS its index in
+// the lightbox set (the same order essayItems() builds in the essay page), so
+// clicking it opens the lightbox there and ← / → step through the essay's own
+// figures. When a #code resolves to a synced photo a next/image fills the box;
+// otherwise the figure's `.ph-*` gradient stands in.
 
 /** The mono caption line under a figure: accent #code badge + the caption. */
 function Caption({ code, cap }: { code: string; cap: string }) {
@@ -46,18 +42,18 @@ function PullQuote({ children }: { children?: ReactNode }) {
 }
 
 /** A full-width figure (clickable — opens the shared lightbox at its index),
-    resolved from config.essays[essay][slot]. */
-function Figure({ essay, slot }: { essay: string; slot: Slot }) {
-  const fig = essays[essay]?.[slot];
+    resolved from config.essays[essay].figures[n] (0-based). */
+function Figure({ essay, n }: { essay: string; n: number }) {
+  const fig = essays[essay]?.figures[n];
   if (!fig) return null;
   const photo = photoByCode(fig.code);
   const cls = photo
     ? "essay-shot photo full-shot"
-    : `essay-shot photo full-shot ${fig.cls}`;
+    : `essay-shot photo full-shot ${fig.cls ?? ""}`.trim();
   return (
     <figure className="full">
       <Shot
-        index={slotIndex[slot]}
+        index={n}
         className={cls}
         label={fig.cap}
         src={photo?.src}
@@ -68,28 +64,22 @@ function Figure({ essay, slot }: { essay: string; slot: Slot }) {
   );
 }
 
-/** A two-up pair of clickable figures with captions, resolved from config. */
-function Pair({
-  essay,
-  a = "pairA",
-  b = "pairB",
-}: {
-  essay: string;
-  a?: Slot;
-  b?: Slot;
-}) {
-  const fa = essays[essay]?.[a];
-  const fb = essays[essay]?.[b];
+/** A two-up pair of clickable figures with captions, resolved from config by the
+    two figure indices `a` / `b`. Kept for hand-authored essays; the importer
+    never emits pairs (it lays every PHOTO out as a single full-width Figure). */
+function Pair({ essay, a, b }: { essay: string; a: number; b: number }) {
+  const fa = essays[essay]?.figures[a];
+  const fb = essays[essay]?.figures[b];
   if (!fa || !fb) return null;
   const pa = photoByCode(fa.code);
   const pb = photoByCode(fb.code);
-  const clsA = pa ? "essay-shot photo pair-shot" : `essay-shot photo pair-shot ${fa.cls}`;
-  const clsB = pb ? "essay-shot photo pair-shot" : `essay-shot photo pair-shot ${fb.cls}`;
+  const clsA = pa ? "essay-shot photo pair-shot" : `essay-shot photo pair-shot ${fa.cls ?? ""}`.trim();
+  const clsB = pb ? "essay-shot photo pair-shot" : `essay-shot photo pair-shot ${fb.cls ?? ""}`.trim();
   return (
     <div className="pair">
       <figure>
         <Shot
-          index={slotIndex[a]}
+          index={a}
           className={clsA}
           label={fa.cap}
           src={pa?.src}
@@ -99,7 +89,7 @@ function Pair({
       </figure>
       <figure>
         <Shot
-          index={slotIndex[b]}
+          index={b}
           className={clsB}
           label={fb.cap}
           src={pb?.src}

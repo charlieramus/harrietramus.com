@@ -273,152 +273,140 @@ export const collections: Collection[] = [
 // ESSAYS  (the photo-essay for each collection)
 // -----------------------------------------------------------------------------
 // One essay per collection, keyed by the collection's `essay` slug. The prose
-// (lead → p1 → quote → p2) and the four figures (full, a pair, and an end shot)
-// render in the /journal/[essay] template built in V3; the figures form that
-// essay's lightbox set. Figure `cls` is a .ph-* stand-in until V4; `code` is the
-// mono `#code` badge shown in the lightbox. In V3 the prose moves to MDX bodies;
-// these strings seed them and keep the config the single source meanwhile.
+// lives in the MDX bodies (content/essays/*.mdx, V3) — this config holds only
+// each essay's identity (title / eyebrow / meta / optional hero) and its ordered
+// FIGURE MANIFEST. V6 made that manifest flexible: `figures` is an ordered list
+// of ANY length (not the old fixed full/pairA/pairB/end four), rendered in order
+// down the V5 single reading column and forming that essay's lightbox set. Each
+// figure's `code` is the mono `#code` badge + the synced-photo lookup id; `cls`
+// is a .ph-* stand-in shown until a real photo resolves by that code (imported
+// essays omit `cls` — their photos land via the Stage 2 checklist).
 
-/** One photograph in an essay — a gradient stand-in for now. */
-export interface Figure {
-  /** .ph-* gradient stand-in class */
-  cls: string;
+/** One photograph in an essay — an entry in the ordered reading-flow list. */
+export interface EssayFigure {
+  /** the mono #code badge — also the lightbox lookup id + synced-photo key */
+  code: string;
   /** the caption line */
   cap: string;
-  /** the mono #code badge (also the lightbox lookup id) */
-  code: string;
+  /** aspect ratio (w/h) framing the shot in the lightbox; defaults to 16/10 */
+  ratio?: number;
+  /** .ph-* gradient stand-in class, shown until a real photo resolves by `code`.
+   *  Imported essays omit it (their photos are synced from the checklist). */
+  cls?: string;
 }
 
 export interface Essay {
-  /** .ph-* stand-in for the sharp essay hero */
-  hero: string;
   /** small label above the essay title (picks up the collection accent) */
   eyebrow: string;
   /** essay title (serif) */
   title: string;
   /** the hero meta line (place · time) */
   meta: string;
-  /** opening paragraph — rendered with a drop-cap Lead */
-  lead: string;
-  /** body paragraph one */
-  p1: string;
-  /** the pull-quote (accent left-rule) */
-  quote: string;
-  /** body paragraph two */
-  p2: string;
-  /** the full-width figure */
-  full: Figure;
-  /** the left half of the two-up pair */
-  pairA: Figure;
-  /** the right half of the two-up pair */
-  pairB: Figure;
-  /** the closing figure */
-  end: Figure;
+  /** .ph-* stand-in for the sharp lead image; optional (imports omit it) */
+  hero?: string;
+  /** the ordered figures — any number, rendered full-width in reading order and
+   *  forming this essay's lightbox set (index = array position) */
+  figures: EssayFigure[];
 }
 
-// CUSTOMIZE: edit the prose freely — types don't care how long a paragraph is.
+// CUSTOMIZE: reorder / add / remove figures freely — the reading view and the
+// lightbox render `figures` in order, however many there are.
 export const essays: Record<string, Essay> = {
   africa: {
-    hero: "ph-savanna",
     eyebrow: "Collection · Africa",
     title: "The long grass",
     meta: "Serengeti, Tanzania · September",
-    lead:
-      "We left camp before the light did, and for an hour the plain was only sound — the engine, the grass, something large breathing off to the left that we never saw.",
-    p1:
-      "By the time the sun cleared the acacia the whole horizon had gone gold, the kind of gold that doesn't photograph so much as insist on being remembered wrong. I stopped trying to catch all of it and started catching edges: a mane, a tail, the exact second a herd decides to move.",
-    quote:
-      "You don't photograph the Serengeti. You photograph the minute it lets you look.",
-    p2:
-      "We came back to camp sunburnt and quiet. I had maybe six frames I trusted out of three hundred, and that felt like the right ratio for a place that old.",
-    full: {
-      cls: "ph-savanna",
-      cap: "First light on the plain, the herd already moving.",
-      code: "0001",
-    },
-    pairA: {
-      cls: "ph-crater",
-      cap: "The crater wall at midday, hazed with dust.",
-      code: "0002",
-    },
-    pairB: {
-      cls: "ph-sea",
-      cap: "Zanzibar, the tide gone all the way out.",
-      code: "0003",
-    },
-    end: {
-      cls: "ph-savanna",
-      cap: "Last of the light before we lost the track.",
-      code: "0004",
-    },
+    hero: "ph-savanna",
+    figures: [
+      {
+        code: "0001",
+        cap: "First light on the plain, the herd already moving.",
+        ratio: 16 / 10,
+        cls: "ph-savanna",
+      },
+      {
+        code: "0002",
+        cap: "The crater wall at midday, hazed with dust.",
+        ratio: 4 / 5,
+        cls: "ph-crater",
+      },
+      {
+        code: "0003",
+        cap: "Zanzibar, the tide gone all the way out.",
+        ratio: 4 / 5,
+        cls: "ph-sea",
+      },
+      {
+        code: "0004",
+        cap: "Last of the light before we lost the track.",
+        ratio: 16 / 10,
+        cls: "ph-savanna",
+      },
+    ],
   },
   "united-states": {
-    hero: "ph-canyon",
     eyebrow: "Collection · United States",
     title: "West, and keep going",
     meta: "Moab to Big Sur · June",
-    lead:
-      "The plan was a loop and a week; it became a line and however long the light held. We drove west because west is where the road stops apologising for the distance.",
-    p1:
-      "Utah is red until it isn't — until you crest something and the whole colour scheme changes without asking. I learned to pull over on instinct, before I'd worked out what I'd seen, because the good ones never wait for you to park politely.",
-    quote:
-      "The West doesn't do modest. You either meet it at scale or you miss it.",
-    p2:
-      "By California the red had gone to fog and the fog to the sea, and Big Sur handed back the same feeling Utah gave on day one: that the country is simply larger than a person can hold, and the camera is a way of admitting it.",
-    full: {
-      cls: "ph-canyon",
-      cap: "Moab at the hour the walls turn to ember.",
-      code: "0011",
-    },
-    pairA: {
-      cls: "ph-coast",
-      cap: "Big Sur, the coast disappearing into its own weather.",
-      code: "0012",
-    },
-    pairB: {
-      cls: "ph-granite",
-      cap: "Yosemite granite, still cold at noon.",
-      code: "0013",
-    },
-    end: {
-      cls: "ph-coast",
-      cap: "The last pullout before the road turned inland.",
-      code: "0014",
-    },
+    hero: "ph-canyon",
+    figures: [
+      {
+        code: "0011",
+        cap: "Moab at the hour the walls turn to ember.",
+        ratio: 16 / 10,
+        cls: "ph-canyon",
+      },
+      {
+        code: "0012",
+        cap: "Big Sur, the coast disappearing into its own weather.",
+        ratio: 4 / 5,
+        cls: "ph-coast",
+      },
+      {
+        code: "0013",
+        cap: "Yosemite granite, still cold at noon.",
+        ratio: 4 / 5,
+        cls: "ph-granite",
+      },
+      {
+        code: "0014",
+        cap: "The last pullout before the road turned inland.",
+        ratio: 16 / 10,
+        cls: "ph-coast",
+      },
+    ],
   },
   japan: {
-    hero: "ph-kyoto",
     eyebrow: "Collection · Japan",
     title: "Quiet, then neon",
     meta: "Kyoto & Tokyo · November",
-    lead:
-      "Kyoto taught me to walk slower and Tokyo dared me to keep up; the trip was mostly the argument between those two speeds, and I lost it happily both ways.",
-    p1:
-      "In Kyoto the good frames were small and patient — a wet stone, a gap in a fence, a maple deciding to turn. Nothing performed for the camera. You had to arrive already paying attention or the moment simply closed.",
-    quote:
-      "Kyoto is a whisper you have to lean into. Tokyo just hands you the volume knob.",
-    p2:
-      "Then the train to Tokyo and the whole grammar flipped: rain, signage, ten thousand reflections, a city that photographs like it's been waiting for you specifically. I shot twice as much and kept half as much, and Hakone, on the way back, gave the trip its full stop — Fuji, briefly, through the cloud.",
-    full: {
-      cls: "ph-kyoto",
-      cap: "A Kyoto side-street after the rain, before the crowds.",
-      code: "0021",
-    },
-    pairA: {
-      cls: "ph-neon",
-      cap: "Tokyo at street level, everything reflected twice.",
-      code: "0022",
-    },
-    pairB: {
-      cls: "ph-fuji",
-      cap: "Fuji from Hakone, through a gap in the cloud.",
-      code: "0023",
-    },
-    end: {
-      cls: "ph-kyoto",
-      cap: "Last night in Kyoto, the lanterns just lit.",
-      code: "0024",
-    },
+    hero: "ph-kyoto",
+    figures: [
+      {
+        code: "0021",
+        cap: "A Kyoto side-street after the rain, before the crowds.",
+        ratio: 16 / 10,
+        cls: "ph-kyoto",
+      },
+      {
+        code: "0022",
+        cap: "Tokyo at street level, everything reflected twice.",
+        ratio: 4 / 5,
+        cls: "ph-neon",
+      },
+      {
+        code: "0023",
+        cap: "Fuji from Hakone, through a gap in the cloud.",
+        ratio: 4 / 5,
+        cls: "ph-fuji",
+      },
+      {
+        code: "0024",
+        cap: "Last night in Kyoto, the lanterns just lit.",
+        ratio: 16 / 10,
+        cls: "ph-kyoto",
+      },
+    ],
   },
 };
 

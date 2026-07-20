@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ComponentType } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { collections, essays, wordmark, type Essay } from "@/site.config";
+import { collections, essays, wordmark, type Essay, type EssayFigure } from "@/site.config";
 import type { LightboxItem } from "@/components/lightbox";
 import { EssayLightbox } from "@/components/essay-lightbox";
 import { photoByCode } from "@/lib/photos";
@@ -20,30 +20,25 @@ const essayBodies: Record<string, ComponentType> = {
   japan: Japan,
 };
 
-// The essay's lightbox item set, ordered [full, pairA, pairB, end] — the same
-// order mdx-components.tsx maps each figure's slot to (slotIndex), so clicking a
-// figure opens the lightbox at the matching image and ← / → step through this
-// essay's figures only. `cls` is the .ph-* stand-in (V4 sets `src` for
-// next/image); the ratios frame each shot in the viewer without cropping.
+// The essay's lightbox item set — this essay's `figures` mapped in order, so a
+// figure's array position IS its lightbox index (the same `n` the MDX <Figure> /
+// <Pair> pass to Shot). Clicking a figure opens the lightbox at the matching
+// image and ← / → step through this essay's figures only. `cls` is the .ph-*
+// stand-in (a synced photo sets `src` for next/image); `ratio` frames the shot
+// in the viewer without cropping, defaulting to 16/10 when a figure omits it.
 function essayItems(essay: Essay): LightboxItem[] {
-  const item = (f: Essay["full"], ratio: number): LightboxItem => {
+  return essay.figures.map((f: EssayFigure): LightboxItem => {
     const photo = photoByCode(f.code);
     return {
-      cls: f.cls,
+      cls: f.cls ?? "",
       alt: f.cap,
       caption: f.cap,
       code: f.code,
-      ratio,
+      ratio: f.ratio ?? 16 / 10,
       src: photo?.src,
       blurDataURL: photo?.blurDataURL,
     };
-  };
-  return [
-    item(essay.full, 16 / 10),
-    item(essay.pairA, 4 / 5),
-    item(essay.pairB, 4 / 5),
-    item(essay.end, 16 / 10),
-  ];
+  });
 }
 
 // /journal/[collection] — the photo-essay reading view (V3). The slug is the
@@ -74,7 +69,9 @@ export async function generateMetadata({
   const essay = essays[collection];
   if (!essay) return { title: "Journal" };
   // Short title — the layout template adds the "— Harriet" suffix (no double-suffix).
-  const description = essay.lead;
+  // The prose now lives only in the MDX body, so the essay's meta line (place ·
+  // time) seeds the SEO/OG description.
+  const description = essay.meta;
   return {
     title: essay.title,
     description,
@@ -118,10 +115,13 @@ export default async function EssayPage({
       {/* The former hero photo as the lead image, at column width. Reuses the
           .full figure box (.photo grain/vignette + full-shot crop). The essay
           hero carries no #code, so it stays its gradient stand-in; it is not part
-          of the lightbox item set, so it stays non-clickable. */}
-      <figure className="essay-lead">
-        <div className={`photo full-shot essay-lead-shot ${essay.hero}`} />
-      </figure>
+          of the lightbox item set, so it stays non-clickable. Optional now — an
+          imported essay may omit the hero, in which case there's no lead image. */}
+      {essay.hero ? (
+        <figure className="essay-lead">
+          <div className={`photo full-shot essay-lead-shot ${essay.hero}`} />
+        </figure>
+      ) : null}
 
       {/* Reading column. The prose + figures come from the collection's MDX
           body (content/essays/*.mdx) via the reading-column components in
